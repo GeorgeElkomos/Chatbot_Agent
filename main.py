@@ -92,7 +92,7 @@ register(
         "- Always instruct them to 'Load database schema, construct the appropriate SQL query with proper JOINs if needed, execute it, and return the actual results'\n"
         "- For order total calculations: Specifically mention 'Calculate using JOIN across Orders, OrderItems, and Products tables'\n"
         "- Never assign just 'build a query' - always require execution and results\n\n"
-        "Final output must be a valid JSON object: {'User_Frendly_response': '<user-friendly description>', 'Table_Data': '<table data or empty string>'}."
+        "Final output must be a valid JSON object: {'User_Frendly_response': '<user-friendly description>', 'HTML_TABLE_DATA': '<table data IN HTML FORMAT or empty string>'}."
     )
 )
 register(
@@ -333,7 +333,7 @@ def filter_output(final_outputs):
             # Only keep PageNavigatorAgent responses
             filtered_outputs[agent_name] = response.get("navigation_link")
         elif agent_name == "SQLBuilderAgent":
-            filtered_outputs[agent_name] = response.get("Table_Data")
+            filtered_outputs[agent_name] = response.get("HTML_TABLE_DATA")
         else:
             filtered_outputs[agent_name] = response.get("response")
     return filtered_outputs

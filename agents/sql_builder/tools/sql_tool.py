@@ -36,25 +36,27 @@ class SQLTool:
                 cursor.execute(query)
                 columns = [col[0] for col in cursor.description]
                 rows = cursor.fetchall()
-               
+
                 if not rows:
-                    return "No results found."
-                   
-                # Format results as a table-like string
-                output_lines = [" | ".join(columns)]
-                output_lines.append("-" * len(output_lines[0]))
-               
+                    return "<p>No results found.</p>"
+
+                # Format results as an HTML table
+                html = ['<table border="1" cellpadding="4" cellspacing="0">']
+                # Header
+                html.append('<tr>' + ''.join(f'<th>{col}</th>' for col in columns) + '</tr>')
+                # Rows
                 for row in rows:
                     formatted_row = []
-                    for i, value in enumerate(row):
+                    for value in row:
                         if hasattr(value, 'read'):
                             formatted_row.append(str(value.read()))
                         else:
                             formatted_row.append(str(value) if value is not None else "NULL")
-                    output_lines.append(" | ".join(formatted_row))
-                   
+                    html.append('<tr>' + ''.join(f'<td>{cell}</td>' for cell in formatted_row) + '</tr>')
+                html.append('</table>')
+
             connection.close()
-            return "\n".join(output_lines)
+            return ''.join(html)
            
         except oracledb.Error as e:
             return f"Oracle Error: {str(e)}"
