@@ -1,0 +1,402 @@
+{
+  "functions": [
+    {
+      "name": "getDashboardStats",
+      "description": "Fetches quick stats and recent activity for the dashboard.",
+      "method": "GET",
+      "url": "/api/dashboard/stats",
+      "parameters": {
+        "query": {},
+        "path": {},
+        "body": null
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "recentActivity": { "type": "array", "items": { "type": "string" } },
+          "stats": { "type": "object" }
+        }
+      },
+      "auth_required": true,
+      "tags": ["dashboard"]
+    },
+    {
+      "name": "listProjects",
+      "description": "Lists all current and archived projects.",
+      "method": "GET",
+      "url": "/api/projects",
+      "parameters": {
+        "query": { "status": { "type": "string", "description": "Filter by project status" } },
+        "path": {},
+        "body": null
+      },
+      "response": {
+        "type": "array",
+        "items": { "type": "object", "properties": { "projectId": { "type": "string" }, "title": { "type": "string" }, "status": { "type": "string" } } }
+      },
+      "auth_required": true,
+      "tags": ["project"]
+    },
+    {
+      "name": "createProject",
+      "description": "Creates a new project.",
+      "method": "POST",
+      "url": "/api/projects",
+      "parameters": {
+        "query": {},
+        "path": {},
+        "body": {
+          "type": "object",
+          "required": ["title", "description"],
+          "properties": {
+            "title": { "type": "string" },
+            "description": { "type": "string" },
+            "startDate": { "type": "string", "format": "date" }
+          }
+        }
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "projectId": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "auth_required": true,
+      "tags": ["project"]
+    },
+    {
+      "name": "getProjectDetails",
+      "description": "Retrieves details of a specific project.",
+      "method": "GET",
+      "url": "/api/projects/{projectId}",
+      "parameters": {
+        "query": {},
+        "path": { "projectId": { "type": "string", "description": "ID of the project" } },
+        "body": null
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "projectId": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      },
+      "auth_required": true,
+      "tags": ["project"]
+    },
+    {
+      "name": "updateProject",
+      "description": "Updates information for a specific project.",
+      "method": "PUT",
+      "url": "/api/projects/{projectId}",
+      "parameters": {
+        "query": {},
+        "path": { "projectId": { "type": "string" } },
+        "body": {
+          "type": "object",
+          "properties": {
+            "title": { "type": "string" },
+            "description": { "type": "string" },
+            "status": { "type": "string" }
+          }
+        }
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" }
+        }
+      },
+      "auth_required": true,
+      "tags": ["project"]
+    },
+    {
+      "name": "deleteProject",
+      "description": "Deletes a project by ID.",
+      "method": "DELETE",
+      "url": "/api/projects/{projectId}",
+      "parameters": {
+        "query": {},
+        "path": { "projectId": { "type": "string" } },
+        "body": null
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "deleted": { "type": "boolean" }
+        }
+      },
+      "auth_required": true,
+      "tags": ["project"]
+    },
+    {
+      "name": "listTasks",
+      "description": "Lists all tasks with optional filters.",
+      "method": "GET",
+      "url": "/api/tasks",
+      "parameters": {
+        "query": { "status": { "type": "string" }, "assignee": { "type": "string" } },
+        "path": {},
+        "body": null
+      },
+      "response": {
+        "type": "array",
+        "items": { "type": "object", "properties": { "taskId": { "type": "string" }, "title": { "type": "string" }, "status": { "type": "string" } } }
+      },
+      "auth_required": true,
+      "tags": ["task"]
+    },
+    {
+      "name": "createTask",
+      "description": "Creates a new task.",
+      "method": "POST",
+      "url": "/api/tasks",
+      "parameters": {
+        "query": {},
+        "path": {},
+        "body": {
+          "type": "object",
+          "required": ["title", "assigneeId"],
+          "properties": {
+            "title": { "type": "string" },
+            "description": { "type": "string" },
+            "assigneeId": { "type": "string" }
+          }
+        }
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "taskId": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "auth_required": true,
+      "tags": ["task"]
+    },
+    {
+      "name": "getTaskDetails",
+      "description": "Retrieves details of a specific task.",
+      "method": "GET",
+      "url": "/api/tasks/{taskId}",
+      "parameters": {
+        "query": {},
+        "path": { "taskId": { "type": "string" } },
+        "body": null
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "taskId": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      },
+      "auth_required": true,
+      "tags": ["task"]
+    },
+    {
+      "name": "updateTaskStatus",
+      "description": "Updates the status of a task.",
+      "method": "PATCH",
+      "url": "/api/tasks/{taskId}/status",
+      "parameters": {
+        "query": {},
+        "path": { "taskId": { "type": "string" } },
+        "body": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": { "type": "string" }
+          }
+        }
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" }
+        }
+      },
+      "auth_required": true,
+      "tags": ["task"]
+    },
+    {
+      "name": "listEmployees",
+      "description": "Lists all employees.",
+      "method": "GET",
+      "url": "/api/employees",
+      "parameters": {
+        "query": {},
+        "path": {},
+        "body": null
+      },
+      "response": {
+        "type": "array",
+        "items": { "type": "object", "properties": { "employeeId": { "type": "string" }, "name": { "type": "string" } } }
+      },
+      "auth_required": true,
+      "tags": ["employee"]
+    },
+    {
+      "name": "getEmployeeProfile",
+      "description": "Retrieves the profile of an employee by ID.",
+      "method": "GET",
+      "url": "/api/employees/{employeeId}",
+      "parameters": {
+        "query": {},
+        "path": { "employeeId": { "type": "string" } },
+        "body": null
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "employeeId": { "type": "string" },
+          "name": { "type": "string" },
+          "role": { "type": "string" },
+          "assignedProjects": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "auth_required": true,
+      "tags": ["employee"]
+    },
+    {
+      "name": "assignEmployeeToProject",
+      "description": "Assigns an employee to a project.",
+      "method": "POST",
+      "url": "/api/projects/{projectId}/assign",
+      "parameters": {
+        "query": {},
+        "path": { "projectId": { "type": "string" } },
+        "body": {
+          "type": "object",
+          "required": ["employeeId"],
+          "properties": {
+            "employeeId": { "type": "string" }
+          }
+        }
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" }
+        }
+      },
+      "auth_required": true,
+      "tags": ["employee", "project"]
+    },
+    {
+      "name": "listReports",
+      "description": "Lists all available reports.",
+      "method": "GET",
+      "url": "/api/reports",
+      "parameters": {
+        "query": {},
+        "path": {},
+        "body": null
+      },
+      "response": {
+        "type": "array",
+        "items": { "type": "object", "properties": { "reportId": { "type": "string" }, "title": { "type": "string" } } }
+      },
+      "auth_required": true,
+      "tags": ["report"]
+    },
+    {
+      "name": "generateReport",
+      "description": "Generates a new analytical report.",
+      "method": "POST",
+      "url": "/api/reports/generate",
+      "parameters": {
+        "query": {},
+        "path": {},
+        "body": {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": { "type": "string", "description": "Type of report to generate" },
+            "filters": { "type": "object" }
+          }
+        }
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "reportId": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      },
+      "auth_required": true,
+      "tags": ["report"]
+    },
+    {
+      "name": "getReportDetails",
+      "description": "Retrieves details of a specific report.",
+      "method": "GET",
+      "url": "/api/reports/{reportId}",
+      "parameters": {
+        "query": {},
+        "path": { "reportId": { "type": "string" } },
+        "body": null
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "reportId": { "type": "string" },
+          "title": { "type": "string" },
+          "content": { "type": "string" }
+        }
+      },
+      "auth_required": true,
+      "tags": ["report"]
+    },
+    {
+      "name": "updateAccountSettings",
+      "description": "Updates user account settings and preferences.",
+      "method": "PUT",
+      "url": "/api/settings/account",
+      "parameters": {
+        "query": {},
+        "path": {},
+        "body": {
+          "type": "object",
+          "properties": {
+            "email": { "type": "string", "format": "email" },
+            "notifications": { "type": "boolean" }
+          }
+        }
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" }
+        }
+      },
+      "auth_required": true,
+      "tags": ["settings"]
+    },
+    {
+      "name": "getAccountSettings",
+      "description": "Retrieves the current user's account settings.",
+      "method": "GET",
+      "url": "/api/settings/account",
+      "parameters": {
+        "query": {},
+        "path": {},
+        "body": null
+      },
+      "response": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "notifications": { "type": "boolean" }
+        }
+      },
+      "auth_required": true,
+      "tags": ["settings"]
+    }
+  ]
+}

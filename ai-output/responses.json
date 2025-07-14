@@ -1,0 +1,7 @@
+{
+  "PageNavigatorAgent": {
+    "response": "To create a FAD transfer, navigate to the 'Enhancements' page. This page handles departmental settlement transfers for final budget reconciliation and closure. Once on the 'Enhancements' page, look for the 'Create Transfer' button or a similar option to initiate the FAD transfer process. You will need to provide details such as Transaction ID, Code, Requested By, Description, Request/Transaction Dates, Status, and Attachments. The system will guide you through the necessary steps, including specifying the source and target accounts, the amount to be transferred, and any required documentation. Ensure all information is accurate and complete before submitting the transfer request.",
+    "navigation_link": "/enhancements"
+  },
+  "GeneralQAAgent": "To create a FAD transfer, go to the \"Enhancements\" page (navigation_link: /enhancements). This page is used for departmental settlement transfers when you're finalizing and closing the budget. Once you're on the \"Enhancements\" page, find the \"Create Transfer\" button (or something similar) to start the FAD transfer. You'll need to provide information like the Transaction ID, Code, who requested it, a description, the dates, the status, and any attachments. The system will then guide you through the steps, including specifying the accounts you're transferring money from and to, the amount, and any required documents. Make sure everything is accurate before you submit the transfer request."
+}
