@@ -9,7 +9,7 @@ basic_llm = LLM(
     model="gemini/gemini-2.0-flash",
     api_key="AIzaSyCKDCXGcICdprCVkDnhaTPsq40vwRJ16RI",#1st "AIzaSyCKDCXGcICdprCVkDnhaTPsq40vwRJ16RI", 2nd "AIzaSyDjb_bXvII_KxgJiJah8L9g9bOYY5SbscY"
     output_dir=OUTPUT_DIR,
-    max_tokens=1024,
+    max_tokens=8192,
     temperature=0.1,
     top_p=0.9,
 )

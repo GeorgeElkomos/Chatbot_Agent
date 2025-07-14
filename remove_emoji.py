@@ -53,7 +53,35 @@ def remove_emoji():
     except Exception:
         pass
 
-    # Patch CrewAI event bus to prevent any logging
+    # # Patch CrewAI event bus to prevent any logging
+    # try:
+    #     from crewai.utilities.events import crewai_event_bus
+    #     import json
+    #     import threading
+    #     event_log_path = os.path.join(os.path.dirname(__file__), 'ai-output', 'event_bus_log.json')
+    #     event_log_lock = threading.Lock()
+    #     def make_serializable(obj):
+    #         try:
+    #             json.dumps(obj)
+    #             return obj
+    #         except Exception:
+    #             return repr(obj)
+
+    #     def logging_emit(*args, **kwargs):
+    #         event = {
+    #             "args": [make_serializable(a) for a in args],
+    #             "kwargs": {k: make_serializable(v) for k, v in kwargs.items()}
+    #         }
+    #         # Append event to the log file as a JSON line
+    #         with event_log_lock:
+    #             with open(event_log_path, "a", encoding="utf-8") as f:
+    #                 f.write(json.dumps(event, ensure_ascii=False) + "\n")
+    #         # Optionally, call the original emit if you want to preserve CrewAI behavior
+    #         # If not, just log and do nothing else
+    #     crewai_event_bus.emit = logging_emit
+    # except Exception:
+    #     pass
+
     try:
         from crewai.utilities.events import crewai_event_bus
         def dummy_emit(*args, **kwargs):

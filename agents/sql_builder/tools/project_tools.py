@@ -12,7 +12,7 @@ def Update_query_project_database(query: str) -> str:
 @tool
 def run_query(query: str) -> str:
     """Run a SQL query against the project database and return results as a string."""
-    from tools.sql_tool import SQLTool
+    from agents.sql_builder.tools.sql_tool import SQLTool
     sql_tool = SQLTool()
     return sql_tool.execute(query)
 

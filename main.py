@@ -1,6 +1,7 @@
 import os
 import json
 import sys
+import re
 from contextlib import contextmanager
 from typing import Dict, List, Any
 from pydantic import BaseModel
@@ -20,6 +21,26 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
+
+# Ensure sys.stdout uses UTF-8 encoding (Windows fix)
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
+# Monkey-patch crewai's Printer to strip ANSI escape codes and print safely
+ANSI_ESCAPE = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+def safe_print(*args, **kwargs):
+    # CrewAI calls Printer.print(content=...) or with a positional string
+    s = kwargs.get('content', args[0] if args else '')
+    plain = ANSI_ESCAPE.sub('', str(s))
+    try:
+        print(plain)
+    except UnicodeEncodeError:
+        print(plain.encode(sys.stdout.encoding, errors='replace').decode(sys.stdout.encoding))
+try:
+    from crewai.utilities.printer import Printer
+    Printer.print = staticmethod(safe_print)
+except Exception:
+    pass
 
 app = FastAPI(title="Chatbot API", version="1.0.0")
 
@@ -71,6 +92,7 @@ register(
         "- Always instruct them to 'Load database schema, construct the appropriate SQL query with proper JOINs if needed, execute it, and return the actual results'\n"
         "- For order total calculations: Specifically mention 'Calculate using JOIN across Orders, OrderItems, and Products tables'\n"
         "- Never assign just 'build a query' - always require execution and results\n\n"
+        "Final output must be a valid JSON object: {'User_Frendly_response': '<user-friendly description>', 'Table_Data': '<table data or empty string>'}."
     )
 )
 register(
@@ -129,6 +151,7 @@ def handle_convergence(history, user_request, final_outputs):
             ),
             expected_output="User-friendly summary of the results",
             agent=get_agent("GeneralQAAgent"),
+            output_json=QAResponse
         )
         final_crew = Crew(
             agents=[get_agent("GeneralQAAgent")],
@@ -185,12 +208,14 @@ def handle_manager_stop(user_request, history, final_outputs, logs=True):
                 ),
                 expected_output="User-friendly summary of the results",
                 agent=get_agent("GeneralQAAgent"),
+                output_json=QAResponse
             )
         else:
             final_task = Task(
                 description=f"Provide a final answer to the user request: {user_request}",
                 expected_output="User-friendly summary of the results",
                 agent=get_agent("GeneralQAAgent"),
+                output_json=QAResponse
             )
         final_crew = Crew(
             agents=[get_agent("GeneralQAAgent")],
@@ -203,7 +228,7 @@ def handle_manager_stop(user_request, history, final_outputs, logs=True):
         final_outputs["GeneralQAAgent"] = str(gen_result)
     return True
 
-def run_worker_agent(next_agent_name, next_task_description, user_request, final_outputs, history, conversation_history, logs=True):
+def run_worker_agent(next_agent_name, next_task_description, user_request, worker_agent_latest_responce, final_outputs, history, conversation_history, logs=True):
     """Run the worker agent and update outputs and history.
     Passes both in-history (agent mapping for this request) and out-history (full chat) to the agent.
     """
@@ -229,11 +254,12 @@ def run_worker_agent(next_agent_name, next_task_description, user_request, final
         schema_str = _json.dumps(schema_dict.get("properties", {}), indent=2)
         description = (
             (next_task_description or f"Handle user request: {user_request}") +
+            f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}\n" +
             f"\n\nFull conversation history (user and assistant turns):\n{json.dumps(conversation_history, ensure_ascii=False)}"
             "\n\nReturn STRICTLY valid JSON conforming to this schema:\n" + schema_str + "\n"
         )
         worker_task = Task(
-            description=description,
+            description=description, # Load database schema, construct the appropriate SQL query to retrieve all transfers data, execute it, and return the actual results.
             expected_output=agent_output.__name__ + " JSON",
             agent=worker_agent,
             output_json=agent_output
@@ -241,6 +267,7 @@ def run_worker_agent(next_agent_name, next_task_description, user_request, final
     elif agent_output is not None and not isinstance(agent_output, type):
         worker_task = Task(
             description=(next_task_description or f"Handle user request: {user_request}") +
+                        f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}\n" +
                         f"\n\nFull conversation history (user and assistant turns):\n{json.dumps(conversation_history, ensure_ascii=False)}"+
                         "\n\nYou must return a valid JSON object conforming to the output schema of this agent.",
             expected_output=agent_output.__class__.__name__ + " JSON",
@@ -250,6 +277,7 @@ def run_worker_agent(next_agent_name, next_task_description, user_request, final
     else:
         worker_task = Task(
             description=(next_task_description or f"Handle user request: {user_request}") +
+                        f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}\n" +
                         f"\n\nFull conversation history (user and assistant turns):\n{json.dumps(conversation_history, ensure_ascii=False)}",
             expected_output="Complete response to the task",
             agent=worker_agent
@@ -305,10 +333,9 @@ def filter_output(final_outputs):
             # Only keep PageNavigatorAgent responses
             filtered_outputs[agent_name] = response.get("navigation_link")
         elif agent_name == "SQLBuilderAgent":
-            continue  # Skip SQLBuilderAgent for now, as it may return complex data
+            filtered_outputs[agent_name] = response.get("Table_Data")
         else:
-            # For other agents, keep the full response
-            filtered_outputs[agent_name] = response
+            filtered_outputs[agent_name] = response.get("response")
     return filtered_outputs
 
 def orchestrate(user_request: str, conversation_history: list = None, logs: bool = True) -> None:
@@ -357,7 +384,7 @@ def orchestrate(user_request: str, conversation_history: list = None, logs: bool
             next_task_description = decision_json.get("next_task_description", "")
         else:
             with suppress_stdout():
-                agent_response, history = run_worker_agent(next_agent_name, next_task_description, user_request, final_outputs, history, conversation_history, logs)
+                agent_response, history = run_worker_agent(next_agent_name, next_task_description, user_request, latest_response, final_outputs, history, conversation_history, logs)
             latest_response = agent_response
             next_agent_name = "ManagerAgent"
     end_and_save(history, final_outputs)
@@ -408,7 +435,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--server":
         uvicorn.run(app, host="0.0.0.0", port=8080)
     else:
-        _user_request = "I need to create a FAD transder, please help me with that."
+        _user_request = "I need a summary to all transfers in the database."
         print("User Input:", _user_request)
         response = orchestrate(_user_request, logs=False)
         print("Final outputs:", response)

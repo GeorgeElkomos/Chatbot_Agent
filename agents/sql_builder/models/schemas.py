@@ -1,4 +1,5 @@
 from pydantic import BaseModel
 
 class DatabaseResponse(BaseModel):
-    response: str
+    User_Frendly_response: str
+    Table_Data: str
