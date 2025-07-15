@@ -1,5 +1,5 @@
 from crewai import Agent
-from agents.llm_config.agent import basic_llm
+from agents.llm_config import basic_llm
 from agents.function_caller.utils.helpers import find_matching_function
 from agents.function_caller.tools.function_tools import call_function_from_user_intent
 

@@ -2,9 +2,30 @@
   {
     "agent": "ManagerAgent",
     "output": {
-      "next_agent": "SQLBuilderAgent",
-      "next_task_description": "Load database schema, construct the appropriate SQL query to retrieve all transfer/transaction data, execute it, and return the actual results. Assume 'transfers' refers to financial transactions. Provide all columns available related to transfers.",
+      "next_agent": "PageNavigatorAgent",
+      "next_task_description": "Provide the navigation link and a user-friendly description for the dashboard page.",
       "stop": false
+    }
+  },
+  {
+    "agent": "PageNavigatorAgent",
+    "output": {
+      "response": "The Dashboard is the central command center providing comprehensive real-time insights, statistical analysis, and visual representations of all budget transfer activities. It serves executive and departmental managers with critical insights into budget flow patterns, approval bottlenecks, performance metrics, and financial trends through advanced analytics and intuitive visualizations.",
+      "navigation_link": "/dashboard"
+    }
+  },
+  {
+    "agent": "ManagerAgent",
+    "output": {
+      "next_agent": "END",
+      "next_task_description": "The user has been provided with the navigation link and description for the dashboard.",
+      "stop": true
+    }
+  },
+  {
+    "agent": "GeneralQAAgent",
+    "output": {
+      "response": "The Dashboard is the central command center providing comprehensive real-time insights, statistical analysis, and visual representations of all budget transfer activities. It serves executive and departmental managers with critical insights into budget flow patterns, approval bottlenecks, performance metrics, and financial trends through advanced analytics and intuitive visualizations."
     }
   }
 ]

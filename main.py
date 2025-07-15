@@ -5,17 +5,8 @@ import re
 from contextlib import contextmanager
 from typing import Dict, List, Any
 from pydantic import BaseModel
-from agents.manager.models.schemas import ManagerDecision
-from agents.page_navigator.models.schemas import NavigationResponse
-from agents.general_qa.models.schemas import QAResponse
-from agents.sql_builder.models.schemas import DatabaseResponse
 from crewai import Crew, Process
-from agents.manager.agent import manager_agent
-from agents.registry.agent import get_agent, get_agent_output, register
-from agents.page_navigator.agent import page_navigator_agent
-from agents.sql_builder.agent import sql_builder_agent
-from agents.general_qa.agent import general_qa_agent
-from agents.manager.tasks.manager_task import create_manager_task
+from agents import *
 from remove_emoji import remove_emoji
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -161,8 +152,8 @@ def handle_convergence(history, user_request, final_outputs):
             telemetry=False
         )
         gen_result = final_crew.kickoff()
-        final_outputs["GeneralQAAgent"] = str(gen_result)
-        history.append({"agent": "GeneralQAAgent", "output": str(gen_result)})
+        final_outputs["GeneralQAAgent"] = gen_result.json_dict
+        history.append({"agent": "GeneralQAAgent", "output": gen_result.json_dict})
     history.append({"agent": "System", "output": "Convergence detected: repeated identical results. Stopping."})
     return True
 
@@ -225,7 +216,8 @@ def handle_manager_stop(user_request, history, final_outputs, logs=True):
             telemetry=False
         )
         gen_result = final_crew.kickoff()
-        final_outputs["GeneralQAAgent"] = str(gen_result)
+        final_outputs["GeneralQAAgent"] = gen_result.json_dict
+        history.append({"agent": "GeneralQAAgent", "output": gen_result.json_dict})
     return True
 
 def run_worker_agent(next_agent_name, next_task_description, user_request, worker_agent_latest_responce, final_outputs, history, conversation_history, logs=True):
@@ -435,7 +427,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--server":
         uvicorn.run(app, host="0.0.0.0", port=8080)
     else:
-        _user_request = "I need a summary to all transfers in the database."
+        _user_request = "Navigate me to dashboard."
         print("User Input:", _user_request)
         response = orchestrate(_user_request, logs=False)
         print("Final outputs:", response)
