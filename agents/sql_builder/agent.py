@@ -29,5 +29,5 @@ sql_builder_agent = Agent(
     ),
     llm=basic_llm,
     tools=[Update_query_project_database, run_query, analyze_and_execute_sql_request, get_sql_query_examples],
-    verbose=True,
+    verbose=False,
 )

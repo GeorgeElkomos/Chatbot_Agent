@@ -14,5 +14,5 @@ function_caller_agent = Agent(
     ),
     llm=basic_llm,
     tools=[find_matching_function, call_function_from_user_intent],
-    verbose=True,
+    verbose=False,
 )

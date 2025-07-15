@@ -18,5 +18,5 @@ page_navigator_agent = Agent(
     ),
     llm=basic_llm,
     tools=[Update_query_project_pages],
-    verbose=True,
+    verbose=False,
 )

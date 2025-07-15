@@ -11,12 +11,12 @@ def create_manager_task(context):
     ])
     description = (
         "# Manager Decision\n\n"
-        "## Original user request\n{user_request}\n\n"
-        "## Latest agent response\n{latest_response}\n\n"
-        "## Per-request agent mapping history (JSON)\n{history}\n\n"
-        "## Full conversation history (user and assistant turns, JSON)\n{conversation_history}\n\n"
         "## Available Agents and Their Capabilities\n"
         f"{agent_info_text}\n\n"
+        "## Full conversation history (user and assistant turns, JSON)\n{conversation_history}\n\n"
+        "## Latest user request\n{user_request}\n\n"
+        "## Latest agent response\n{latest_response}\n\n"
+        "## Per-request agent mapping history (JSON)\n{history}\n\n"
         "Decide which agent should be called next. Or the task is completed by the latest responce.\n\n"
         "Return STRICTLY valid JSON conforming to this schema:\n"
         "{{\"next_agent\": \"<AgentName or END>\", \"next_task_description\": \"<description>\", \"stop\": <true|false>}}"

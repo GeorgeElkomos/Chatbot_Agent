@@ -148,7 +148,7 @@ def handle_convergence(history, user_request, final_outputs):
             agents=[get_agent("GeneralQAAgent")],
             tasks=[final_task],
             process=Process.sequential,
-            verbose=True,
+            verbose=False,
             telemetry=False
         )
         gen_result = final_crew.kickoff()
@@ -246,8 +246,8 @@ def run_worker_agent(next_agent_name, next_task_description, user_request, worke
         schema_str = _json.dumps(schema_dict.get("properties", {}), indent=2)
         description = (
             (next_task_description or f"Handle user request: {user_request}") +
-            f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}\n" +
             f"\n\nFull conversation history (user and assistant turns):\n{json.dumps(conversation_history, ensure_ascii=False)}"
+            f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}" +
             "\n\nReturn STRICTLY valid JSON conforming to this schema:\n" + schema_str + "\n"
         )
         worker_task = Task(
@@ -259,8 +259,8 @@ def run_worker_agent(next_agent_name, next_task_description, user_request, worke
     elif agent_output is not None and not isinstance(agent_output, type):
         worker_task = Task(
             description=(next_task_description or f"Handle user request: {user_request}") +
-                        f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}\n" +
                         f"\n\nFull conversation history (user and assistant turns):\n{json.dumps(conversation_history, ensure_ascii=False)}"+
+                        f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}" +
                         "\n\nYou must return a valid JSON object conforming to the output schema of this agent.",
             expected_output=agent_output.__class__.__name__ + " JSON",
             agent=worker_agent,
@@ -269,8 +269,8 @@ def run_worker_agent(next_agent_name, next_task_description, user_request, worke
     else:
         worker_task = Task(
             description=(next_task_description or f"Handle user request: {user_request}") +
-                        f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}\n" +
-                        f"\n\nFull conversation history (user and assistant turns):\n{json.dumps(conversation_history, ensure_ascii=False)}",
+                        f"\n\nFull conversation history (user and assistant turns):\n{json.dumps(conversation_history, ensure_ascii=False)}"+
+                        f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}",
             expected_output="Complete response to the task",
             agent=worker_agent
         )
@@ -330,6 +330,69 @@ def filter_output(final_outputs):
             filtered_outputs[agent_name] = response.get("response")
     return filtered_outputs
 
+MAX_MESSAGES = 2*3  # Keep last 3 user+assistant pairs
+
+def trim_history(conversation_history: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    """Trim to last MAX_MESSAGES turns. Summarize older content into a single summary message."""
+    if len(conversation_history) <= MAX_MESSAGES:
+        return conversation_history
+
+    # Split into old and recent history
+    old_history = conversation_history[:-MAX_MESSAGES]
+    new_history = conversation_history[-MAX_MESSAGES:]
+
+    # # # Format old history for summarization
+    # formatted_old = []
+    # for turn in old_history:
+    #     role = turn.get("role", "").capitalize()
+    #     content = turn.get("content", "")
+    #     formatted_old.append(f"{role}: {content}")
+    # old_convo_text = "\n".join(formatted_old)
+    # from crewai import Task
+    # # Create summarization task using GeneralQAAgent
+    # summary_agent = get_agent("GeneralQAAgent")
+    # task = Task(
+    #     description=(
+    #         f"Please summarize the following conversation in a few sentences:\n\n{old_convo_text}"
+    #     ),
+    #     expected_output="A short summary of the conversation above",
+    #     agent=summary_agent,
+    #     output_json=QAResponse,
+    # )
+    # crew = Crew(
+    #     agents=[summary_agent],
+    #     tasks=[task],
+    #     process=Process.sequential,
+    #     verbose=False,
+    #     telemetry=False
+    # )
+    # result = crew.kickoff()
+
+    # summary_text = result.json_dict.get("response", "Summary unavailable.")
+    # summary_entry = {"role": "summary", "content": summary_text}
+
+    # new_history = [summary_entry] + new_history
+    
+    return new_history
+
+
+def format_conversation_history(conversation_history: List[Dict[str, str]]) -> str:
+    """Format history as 'User: ...', 'Assistant: ...', or 'Summary: ...'"""
+    formatted = []
+    for turn in conversation_history:
+        role = turn.get("role", "").lower()
+        content = turn.get("content", "")
+        if role == "user":
+            formatted.append(f"User: {content}")
+        elif role == "assistant":
+            formatted.append(f"Assistant: {content}")
+        elif role == "summary":
+            formatted.append(f"Summary of earlier conversation:\n{content}")
+        else:
+            formatted.append(f"{role.capitalize()}: {content}")
+    return "\n".join(formatted)
+
+
 def orchestrate(user_request: str, conversation_history: list = None, logs: bool = True) -> None:
     """Run a full conversation, letting the Manager steer between agents.
     Set logs=False to suppress verbose output from CrewAI agents and crews.
@@ -337,17 +400,8 @@ def orchestrate(user_request: str, conversation_history: list = None, logs: bool
     """
     if conversation_history is None:
         conversation_history = []
-    # Limit the total character length of the conversation history for context window management
-    MAX_HISTORY_CHARS = 6000  # You can adjust this value as needed
-    def history_length(hist):
-        return sum(len(str(turn.get('content', ''))) for turn in hist)
-    # Remove oldest messages until under the limit
-    while history_length(conversation_history) > MAX_HISTORY_CHARS and len(conversation_history) > 2:
-        # Remove the oldest user+assistant pair (if possible)
-        conversation_history.pop(0)
-        # Optionally, also pop the next if it's an assistant (to keep pairs)
-        if conversation_history and conversation_history[0]['role'] == 'assistant':
-            conversation_history.pop(0)
+    conversation_history = format_conversation_history(trim_history(conversation_history))
+
     final_outputs = {}
     history: List[Dict[str, Any]] = []  # in-history: agent mapping for this request
     latest_response = ""
@@ -427,7 +481,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--server":
         uvicorn.run(app, host="0.0.0.0", port=8080)
     else:
-        _user_request = "Navigate me to dashboard."
+        _user_request = "summarize the Last transfer."
         print("User Input:", _user_request)
         response = orchestrate(_user_request, logs=False)
         print("Final outputs:", response)

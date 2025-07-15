@@ -2,30 +2,38 @@
   {
     "agent": "ManagerAgent",
     "output": {
-      "next_agent": "PageNavigatorAgent",
-      "next_task_description": "Provide the navigation link and a user-friendly description for the dashboard page.",
+      "next_agent": "SQLBuilderAgent",
+      "next_task_description": "Load database schema, construct the appropriate SQL query to retrieve the details of the last transfer, execute it, and return the actual results. Assume 'transfer' refers to a transaction. Provide all available details about the last transaction.",
       "stop": false
     }
   },
   {
-    "agent": "PageNavigatorAgent",
+    "agent": "SQLBuilderAgent",
     "output": {
-      "response": "The Dashboard is the central command center providing comprehensive real-time insights, statistical analysis, and visual representations of all budget transfer activities. It serves executive and departmental managers with critical insights into budget flow patterns, approval bottlenecks, performance metrics, and financial trends through advanced analytics and intuitive visualizations.",
-      "navigation_link": "/dashboard"
+      "User_Frendly_response": "Here are the details of the last transaction:",
+      "HTML_TABLE_DATA": "<table border=\"1\" cellpadding=\"4\" cellspacing=\"0\"><tr><th>TRANSACTION_ID</th><th>TRANSACTION_DATE</th><th>AMOUNT</th><th>STATUS</th><th>REQUESTED_BY</th><th>USER_ID</th><th>REQUEST_DATE</th><th>NOTES</th><th>DESCRIPTION_X</th><th>CODE</th><th>GL_POSTING_STATUS</th><th>APPROVEL_1</th><th>APPROVEL_2</th><th>APPROVEL_3</th><th>APPROVEL_4</th><th>APPROVEL_1_DATE</th><th>APPROVEL_2_DATE</th><th>APPROVEL_3_DATE</th><th>APPROVEL_4_DATE</th><th>STATUS_LEVEL</th><th>ATTACHMENT</th><th>FY</th><th>GROUP_ID</th><th>INTERFACE_ID</th><th>REJECT_GROUP_ID</th><th>REJECT_INTERFACE_ID</th><th>APPROVE_GROUP_ID</th><th>APPROVE_INTERFACE_ID</th><th>REPORT</th><th>TYPE</th></tr><tr><td>343</td><td>Jun</td><td>0.0</td><td>pending</td><td>admin123</td><td>101</td><td>2025-07-02 09:30:10.189177</td><td><p>test trafser</p></td><td>NULL</td><td>FAR-0025</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>1</td><td>No</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>FAR</td></tr></table>"
+    }
+  },
+  {
+    "agent": "ManagerAgent",
+    "output": {
+      "next_agent": "GeneralQAAgent",
+      "next_task_description": "Summarize the details of the last transaction in a user-friendly way, based on the provided data.",
+      "stop": false
+    }
+  },
+  {
+    "agent": "GeneralQAAgent",
+    "output": {
+      "response": "Here are the details of the last transaction:\n\nTransaction ID: 343\nTransaction Date: June\nAmount: 0.0\nStatus: pending\nRequested By: admin123\nUser ID: 101\nRequest Date: 2025-07-02 09:30:10.189177\nNotes: test trafser\nDescription: NULL\nCode: FAR-0025\nGL Posting Status: NULL\nApproval 1: NULL\nApproval 2: NULL\nApproval 3: NULL\nApproval 4: NULL\nApproval 1 Date: NULL\nApproval 2 Date: NULL\nApproval 3 Date: NULL\nApproval 4 Date: NULL\nStatus Level: 1\nAttachment: No\nFY: NULL\nGroup ID: NULL\nInterface ID: NULL\nReject Group ID: NULL\nReject Interface ID: NULL\nApprove Group ID: NULL\nApprove Interface ID: NULL\nReport: NULL\nType: FAR"
     }
   },
   {
     "agent": "ManagerAgent",
     "output": {
       "next_agent": "END",
-      "next_task_description": "The user has been provided with the navigation link and description for the dashboard.",
+      "next_task_description": "The details of the last transfer have been summarized.",
       "stop": true
-    }
-  },
-  {
-    "agent": "GeneralQAAgent",
-    "output": {
-      "response": "The Dashboard is the central command center providing comprehensive real-time insights, statistical analysis, and visual representations of all budget transfer activities. It serves executive and departmental managers with critical insights into budget flow patterns, approval bottlenecks, performance metrics, and financial trends through advanced analytics and intuitive visualizations."
     }
   }
 ]

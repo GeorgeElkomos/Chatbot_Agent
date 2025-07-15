@@ -13,5 +13,5 @@ manager_agent = Agent(
         "You as a agent don't have access to make any modifications on the system, So be clease with the user what are you capable of doing."
     ),
     llm=basic_llm,
-    verbose=True,
+    verbose=False,
 )
