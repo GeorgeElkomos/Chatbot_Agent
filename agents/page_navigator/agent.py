@@ -1,3 +1,6 @@
+"""
+File: agents/page_navigator/agent.py (relative to Chatbot_Agent)
+"""
 from crewai import Agent
 from agents.llm_config.agent import basic_llm
 from agents.page_navigator.tools.project_tools import Update_query_project_pages

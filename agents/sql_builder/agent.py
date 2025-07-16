@@ -1,3 +1,6 @@
+"""
+File: agents/sql_builder/agent.py (relative to Chatbot_Agent)
+"""
 from crewai import Agent
 from agents.llm_config.agent import basic_llm
 from agents.sql_builder.tools.project_tools import Update_query_project_database, run_query, analyze_and_execute_sql_request, get_sql_query_examples

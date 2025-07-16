@@ -1,3 +1,6 @@
+"""
+File: agents/registry/registration.py (relative to Chatbot_Agent)
+"""
 from agents import (
     page_navigator_agent, NavigationResponse,
     sql_builder_agent, DatabaseResponse,

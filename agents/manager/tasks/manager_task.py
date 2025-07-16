@@ -1,3 +1,6 @@
+"""
+File: agents/manager/tasks/manager_task.py (relative to Chatbot_Agent)
+"""
 from crewai import Task
 from agents.manager.agent import manager_agent
 from agents.registry.main import AGENT_REGISTRY, get_agent_descriptions

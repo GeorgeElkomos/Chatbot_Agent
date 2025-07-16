@@ -1,3 +1,6 @@
+"""
+File: agents/registry/main.py (relative to Chatbot_Agent)
+"""
 from crewai import Agent
 from typing import Dict, NamedTuple
 from agents.llm_config.agent import basic_llm

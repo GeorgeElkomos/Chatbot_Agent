@@ -1,3 +1,6 @@
+"""
+File: agents/page_navigator/tools/project_tools.py (relative to Chatbot_Agent)
+"""
 # Moved from tools/project_tools.py
 # Add any page_navigator agent-specific tool code here
 from crewai.tools import tool

@@ -1,3 +1,6 @@
+"""
+File: remove_emoji.py (relative to Chatbot_Agent)
+"""
 # Aggressive fix for CrewAI Unicode issues on Windows
 import os
 import sys

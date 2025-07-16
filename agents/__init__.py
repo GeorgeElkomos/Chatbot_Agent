@@ -1,3 +1,6 @@
+"""
+File: agents/__init__.py (relative to Chatbot_Agent)
+"""
 # Agents package
 from .manager import ManagerDecision, create_manager_task, manager_agent
 from .page_navigator import NavigationResponse, page_navigator_agent

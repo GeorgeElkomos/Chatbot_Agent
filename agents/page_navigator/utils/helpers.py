@@ -1,3 +1,9 @@
+"""
+File: agents/page_navigator/utils/helpers.py (relative to Chatbot_Agent)
+"""
+"""
+File: agents/page_navigator/utils/helpers.py (relative to Chatbot_Agent)
+"""
 import json
 
 def _load_project_pages() -> str:
