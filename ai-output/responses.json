@@ -1,9 +1,9 @@
 {
   "SQLBuilderAgent": {
-    "User_Frendly_response": "Here are the details of the last transaction:",
-    "HTML_TABLE_DATA": "<table border=\"1\" cellpadding=\"4\" cellspacing=\"0\"><tr><th>TRANSACTION_ID</th><th>TRANSACTION_DATE</th><th>AMOUNT</th><th>STATUS</th><th>REQUESTED_BY</th><th>USER_ID</th><th>REQUEST_DATE</th><th>NOTES</th><th>DESCRIPTION_X</th><th>CODE</th><th>GL_POSTING_STATUS</th><th>APPROVEL_1</th><th>APPROVEL_2</th><th>APPROVEL_3</th><th>APPROVEL_4</th><th>APPROVEL_1_DATE</th><th>APPROVEL_2_DATE</th><th>APPROVEL_3_DATE</th><th>APPROVEL_4_DATE</th><th>STATUS_LEVEL</th><th>ATTACHMENT</th><th>FY</th><th>GROUP_ID</th><th>INTERFACE_ID</th><th>REJECT_GROUP_ID</th><th>REJECT_INTERFACE_ID</th><th>APPROVE_GROUP_ID</th><th>APPROVE_INTERFACE_ID</th><th>REPORT</th><th>TYPE</th></tr><tr><td>343</td><td>Jun</td><td>0.0</td><td>pending</td><td>admin123</td><td>101</td><td>2025-07-02 09:30:10.189177</td><td><p>test trafser</p></td><td>NULL</td><td>FAR-0025</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>1</td><td>No</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>FAR</td></tr></table>"
+    "User_Frendly_response": "The last transfer with values in the cost center and the account is:",
+    "HTML_TABLE_DATA": "<table border=\"1\" cellpadding=\"4\" cellspacing=\"0\"><tr><th>TYPE</th><th>TRANSACTION_DATE</th><th>COST_CENTER_CODE</th><th>ACCOUNT_NAME</th></tr><tr><td>FAR</td><td>May</td><td>102001</td><td>العلاوة التكميلية مواطنون</td></tr></table>"
   },
   "GeneralQAAgent": {
-    "response": "Here are the details of the last transaction:\n\nTransaction ID: 343\nTransaction Date: June\nAmount: 0.0\nStatus: pending\nRequested By: admin123\nUser ID: 101\nRequest Date: 2025-07-02 09:30:10.189177\nNotes: test trafser\nDescription: NULL\nCode: FAR-0025\nGL Posting Status: NULL\nApproval 1: NULL\nApproval 2: NULL\nApproval 3: NULL\nApproval 4: NULL\nApproval 1 Date: NULL\nApproval 2 Date: NULL\nApproval 3 Date: NULL\nApproval 4 Date: NULL\nStatus Level: 1\nAttachment: No\nFY: NULL\nGroup ID: NULL\nInterface ID: NULL\nReject Group ID: NULL\nReject Interface ID: NULL\nApprove Group ID: NULL\nApprove Interface ID: NULL\nReport: NULL\nType: FAR"
+    "response": "The last transfer with both cost center and account information is of type 'FAR', which occurred in May. The cost center code is 102001, and the account name is 'العلاوة التكميلية مواطنون'."
   }
 }

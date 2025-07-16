@@ -1,40 +1,26 @@
-import os
-import json
 import sys
-import re
-from contextlib import contextmanager
-from typing import Dict, List, Any
-from pydantic import BaseModel
-from crewai import Crew, Process
-from agents import *
-from remove_emoji import remove_emoji
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 import uvicorn
+from remove_emoji import remove_emoji
+from orchestrator import orchestrate
+from agents.registry.registration import register_agents
+from typing import Dict, Any
+from pydantic import BaseModel
 
-# Ensure sys.stdout uses UTF-8 encoding (Windows fix)
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8")
+class ChatbotRequest(BaseModel):
+    user_input: str
 
-# Monkey-patch crewai's Printer to strip ANSI escape codes and print safely
-ANSI_ESCAPE = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
-def safe_print(*args, **kwargs):
-    # CrewAI calls Printer.print(content=...) or with a positional string
-    s = kwargs.get('content', args[0] if args else '')
-    plain = ANSI_ESCAPE.sub('', str(s))
-    try:
-        print(plain)
-    except UnicodeEncodeError:
-        print(plain.encode(sys.stdout.encoding, errors='replace').decode(sys.stdout.encoding))
-try:
-    from crewai.utilities.printer import Printer
-    Printer.print = staticmethod(safe_print)
-except Exception:
-    pass
+class ChatbotResponse(BaseModel):
+    status: str
+    response: Dict[str, Any]
+    message: str = None
+
+class HealthResponse(BaseModel):
+    status: str
+    message: str
 
 app = FastAPI(title="Chatbot API", version="1.0.0")
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -42,444 +28,36 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
- 
-# Pydantic models for request/response
-class ChatbotRequest(BaseModel):
-    user_input: str
- 
-class ChatbotResponse(BaseModel):
-    status: str
-    response: Dict[str, Any]
-    message: str = None
- 
-class HealthResponse(BaseModel):
-    status: str
-    message: str
 
 remove_emoji()
-
-OUTPUT_DIR = "./ai-output"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-# Register agents (if not already registered in their modules)
-register(
-    page_navigator_agent, 
-    NavigationResponse,
-    "PageNavigatorAgent",
-    (
-        "Handles navigation requests and provides appropriate page links and user-friendly information. "
-        "Use when user wants to move to different pages or sections of the application, or requests a summary of available pages. "
-        "Final output must be a valid JSON object: {'navigation_link': '<link or empty string>', 'response': '<user-friendly description>'}. "
-        "The { navigation_link } field should be the navigation link (e.g., '/', '/register', '/admin/user-management') or an empty string if no navigation is needed. "
-        "The { response } field should contain instructions, a summary, or user-friendly information about the link or requested pages."
-    )
-)
-register(
-    sql_builder_agent, 
-    DatabaseResponse,
-    "SQLBuilderAgent",
-    (
-        "Constructs and executes complex SQL queries with proper JOINs. Specializes in database operations, order calculations, and data analysis. Always loads schema first and returns actual query results."
-        "- Always instruct them to 'Load database schema, construct the appropriate SQL query with proper JOINs if needed, execute it, and return the actual results'\n"
-        "- For order total calculations: Specifically mention 'Calculate using JOIN across Orders, OrderItems, and Products tables'\n"
-        "- Never assign just 'build a query' - always require execution and results\n\n"
-        "Final output must be a valid JSON object: {'User_Frendly_response': '<user-friendly description>', 'HTML_TABLE_DATA': '<table data IN HTML FORMAT or empty string>'}."
-    )
-)
-register(
-    general_qa_agent, 
-    QAResponse,
-    "GeneralQAAgent",
-    "Summarizes technical outputs and database results in user-friendly language. Use for explaining complex data or providing final summaries to users."
-)
-register(
-    manager_agent, 
-    ManagerDecision,
-    "ManagerAgent",
-    "Orchestrates the conversation flow and decides which agent should handle each request based on user input and conversation context."
-)
-# register(function_caller_agent, "FunctionCallerAgent")
-
-
-def set_global_logging(logs: bool):
-    """Globally suppress or enable logging for CrewAI and Python, but not print()."""
-    import logging
-    if not logs:
-        # Only suppress logging, not sys.stdout
-        logging.getLogger().setLevel(logging.CRITICAL)
-        logging.getLogger("crewai").setLevel(logging.CRITICAL)
-    # else:
-    #     # Restore logging level if needed (optional, not implemented here)
-    #     pass
-
-def check_convergence(history, N=2):
-    """Check if the last N non-manager, non-GQA agent responses are identical."""
-    if len(history) >= N * 2:
-        last_outputs = [
-            entry["output"] for entry in reversed(history)
-            if entry.get("agent") not in ("ManagerAgent", "GeneralQAAgent")
-        ][:N]
-        if len(last_outputs) == N and all(r == last_outputs[0] for r in last_outputs):
-            return True
-    return False
-
-def handle_convergence(history, user_request, final_outputs):
-    """Handle the case when convergence is detected and trigger GeneralQAAgent summary."""
-    last_agent_result = None
-    last_agent_name = None
-    for entry in reversed(history):
-        agent_name = entry.get("agent")
-        if agent_name not in ("GeneralQAAgent", "ManagerAgent"):
-            last_agent_result = entry.get("output")
-            last_agent_name = agent_name
-            break
-    if last_agent_result:
-        from crewai import Task
-        final_task = Task(
-            description=(
-                f"The following data was calculated by agent '{last_agent_name}':\n{last_agent_result}\n"
-                f"Please summarize these results in plain English for the user request: {user_request}.\nDo not repeat the table, but explain what the data means."
-            ),
-            expected_output="User-friendly summary of the results",
-            agent=get_agent("GeneralQAAgent"),
-            output_json=QAResponse
-        )
-        final_crew = Crew(
-            agents=[get_agent("GeneralQAAgent")],
-            tasks=[final_task],
-            process=Process.sequential,
-            verbose=False,
-            telemetry=False
-        )
-        gen_result = final_crew.kickoff()
-        final_outputs["GeneralQAAgent"] = gen_result.json_dict
-        history.append({"agent": "GeneralQAAgent", "output": gen_result.json_dict})
-    history.append({"agent": "System", "output": "Convergence detected: repeated identical results. Stopping."})
-    return True
-
-def run_manager_agent(user_request, latest_response, history, conversation_history, logs=True):
-    """Run the manager agent and return the decision json and updated history.
-    Passes both in-history (agent mapping for this request) and out-history (full chat) to the agent.
-    """
-    manager_task = create_manager_task({
-        "user_request": user_request,
-        "latest_response": latest_response,
-        "history": json.dumps(history, ensure_ascii=False),
-        "conversation_history": json.dumps(conversation_history, ensure_ascii=False),
-    })
-    manager_crew = Crew(
-        agents=[manager_agent],
-        tasks=[manager_task],
-        process=Process.sequential,
-        verbose=logs,
-        telemetry=False
-    )
-    manager_result = manager_crew.kickoff()
-    decision_json = manager_result.json_dict
-    history.append({"agent": "ManagerAgent", "output": decision_json})
-    return decision_json, history
-
-def handle_manager_stop(user_request, history, final_outputs, logs=True):
-    """Handle the case when the manager agent decides to stop and trigger GeneralQAAgent if needed."""
-    if "GeneralQAAgent" not in final_outputs:
-        last_agent_result = None
-        last_agent_name = None
-        for entry in reversed(history):
-            agent_name = entry.get("agent")
-            if agent_name not in ("GeneralQAAgent", "ManagerAgent"):
-                last_agent_result = entry.get("output")
-                last_agent_name = agent_name
-                break
-        from crewai import Task
-        if last_agent_result:
-            final_task = Task(
-                description=(
-                    f"The following data was calculated by agent '{last_agent_name}':\n{last_agent_result}\n"
-                    f"Please summarize these results in plain English for the user request: {user_request}.\nDo not repeat the table, but explain what the data means."
-                ),
-                expected_output="User-friendly summary of the results",
-                agent=get_agent("GeneralQAAgent"),
-                output_json=QAResponse
-            )
-        else:
-            final_task = Task(
-                description=f"Provide a final answer to the user request: {user_request}",
-                expected_output="User-friendly summary of the results",
-                agent=get_agent("GeneralQAAgent"),
-                output_json=QAResponse
-            )
-        final_crew = Crew(
-            agents=[get_agent("GeneralQAAgent")],
-            tasks=[final_task],
-            process=Process.sequential,
-            verbose=logs,
-            telemetry=False
-        )
-        gen_result = final_crew.kickoff()
-        final_outputs["GeneralQAAgent"] = gen_result.json_dict
-        history.append({"agent": "GeneralQAAgent", "output": gen_result.json_dict})
-    return True
-
-def run_worker_agent(next_agent_name, next_task_description, user_request, worker_agent_latest_responce, final_outputs, history, conversation_history, logs=True):
-    """Run the worker agent and update outputs and history.
-    Passes both in-history (agent mapping for this request) and out-history (full chat) to the agent.
-    """
-    worker_agent = get_agent(next_agent_name)
-    
-    if worker_agent is None:
-        from agents.registry.agent import get_agent_descriptions
-        registered_agents = get_agent_descriptions()
-        raise ValueError(f"Unknown agent requested by Manager: {next_agent_name}. Available agents: {list(registered_agents.keys())}")
-    
-    from crewai import Task
-    # Add conversation_history to the task description for context
-    agent_output = get_agent_output(next_agent_name)
-    # If agent_output is a Pydantic model type, generate schema string
-    schema_str = ""
-    if agent_output is not None and isinstance(agent_output, type) and issubclass(agent_output, BaseModel):
-        # Use model_json_schema for Pydantic v2, fallback to schema for v1
-        try:
-            schema_dict = agent_output.model_json_schema()  # Pydantic v2
-        except AttributeError:
-            schema_dict = agent_output.schema()  # Pydantic v1
-        import json as _json
-        schema_str = _json.dumps(schema_dict.get("properties", {}), indent=2)
-        description = (
-            (next_task_description or f"Handle user request: {user_request}") +
-            f"\n\nFull conversation history (user and assistant turns):\n{json.dumps(conversation_history, ensure_ascii=False)}"
-            f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}" +
-            "\n\nReturn STRICTLY valid JSON conforming to this schema:\n" + schema_str + "\n"
-        )
-        worker_task = Task(
-            description=description, # Load database schema, construct the appropriate SQL query to retrieve all transfers data, execute it, and return the actual results.
-            expected_output=agent_output.__name__ + " JSON",
-            agent=worker_agent,
-            output_json=agent_output
-        )
-    elif agent_output is not None and not isinstance(agent_output, type):
-        worker_task = Task(
-            description=(next_task_description or f"Handle user request: {user_request}") +
-                        f"\n\nFull conversation history (user and assistant turns):\n{json.dumps(conversation_history, ensure_ascii=False)}"+
-                        f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}" +
-                        "\n\nYou must return a valid JSON object conforming to the output schema of this agent.",
-            expected_output=agent_output.__class__.__name__ + " JSON",
-            agent=worker_agent,
-            output=agent_output
-        )
-    else:
-        worker_task = Task(
-            description=(next_task_description or f"Handle user request: {user_request}") +
-                        f"\n\nFull conversation history (user and assistant turns):\n{json.dumps(conversation_history, ensure_ascii=False)}"+
-                        f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}",
-            expected_output="Complete response to the task",
-            agent=worker_agent
-        )
-    worker_crew = Crew(
-        agents=[worker_agent],
-        tasks=[worker_task],
-        process=Process.sequential,
-        verbose=logs,
-        telemetry=False
-    )
-    worker_result = worker_crew.kickoff()
-    
-    agent_response = worker_result.json_dict
-    final_outputs[next_agent_name] = agent_response
-    history.append({"agent": next_agent_name, "output": agent_response})
-    return agent_response, history
-
-def save_history(history):
-    """Save the conversation history to a JSON file."""
-    history_file = os.path.join(OUTPUT_DIR, "history.json")
-    with open(history_file, "w", encoding="utf-8") as f:
-        json.dump(history, f, ensure_ascii=False, indent=2)
-
-def save_responses(final_outputs):
-    """Save the agent responses to a JSON file."""
-    responses_file = os.path.join(OUTPUT_DIR, "responses.json")
-    with open(responses_file, "w", encoding="utf-8") as f:
-        json.dump(final_outputs, f, ensure_ascii=False, indent=2)
-
-def end_and_save(history, final_outputs):
-    """Save both history and responses at the end of the run."""
-    save_history(history)
-    save_responses(final_outputs)
-
-@contextmanager
-def suppress_stdout():
-    """Context manager to suppress stdout (print output) temporarily."""
-    original_stdout = sys.stdout
-    sys.stdout = open(os.devnull, 'w')
-    try:
-        yield
-    finally:
-        sys.stdout.close()
-        sys.stdout = original_stdout
-
-
-def filter_output(final_outputs):
-    """Filter the final outputs to only include relevant agent responses."""
-    filtered_outputs = {}
-    for agent_name, response in final_outputs.items():
-        if agent_name == "PageNavigatorAgent":
-            # Only keep PageNavigatorAgent responses
-            filtered_outputs[agent_name] = response.get("navigation_link")
-        elif agent_name == "SQLBuilderAgent":
-            filtered_outputs[agent_name] = response.get("HTML_TABLE_DATA")
-        else:
-            filtered_outputs[agent_name] = response.get("response")
-    return filtered_outputs
-
-MAX_MESSAGES = 2*3  # Keep last 3 user+assistant pairs
-
-def trim_history(conversation_history: List[Dict[str, str]]) -> List[Dict[str, str]]:
-    """Trim to last MAX_MESSAGES turns. Summarize older content into a single summary message."""
-    if len(conversation_history) <= MAX_MESSAGES:
-        return conversation_history
-
-    # Split into old and recent history
-    old_history = conversation_history[:-MAX_MESSAGES]
-    new_history = conversation_history[-MAX_MESSAGES:]
-
-    # # # Format old history for summarization
-    # formatted_old = []
-    # for turn in old_history:
-    #     role = turn.get("role", "").capitalize()
-    #     content = turn.get("content", "")
-    #     formatted_old.append(f"{role}: {content}")
-    # old_convo_text = "\n".join(formatted_old)
-    # from crewai import Task
-    # # Create summarization task using GeneralQAAgent
-    # summary_agent = get_agent("GeneralQAAgent")
-    # task = Task(
-    #     description=(
-    #         f"Please summarize the following conversation in a few sentences:\n\n{old_convo_text}"
-    #     ),
-    #     expected_output="A short summary of the conversation above",
-    #     agent=summary_agent,
-    #     output_json=QAResponse,
-    # )
-    # crew = Crew(
-    #     agents=[summary_agent],
-    #     tasks=[task],
-    #     process=Process.sequential,
-    #     verbose=False,
-    #     telemetry=False
-    # )
-    # result = crew.kickoff()
-
-    # summary_text = result.json_dict.get("response", "Summary unavailable.")
-    # summary_entry = {"role": "summary", "content": summary_text}
-
-    # new_history = [summary_entry] + new_history
-    
-    return new_history
-
-
-def format_conversation_history(conversation_history: List[Dict[str, str]]) -> str:
-    """Format history as 'User: ...', 'Assistant: ...', or 'Summary: ...'"""
-    formatted = []
-    for turn in conversation_history:
-        role = turn.get("role", "").lower()
-        content = turn.get("content", "")
-        if role == "user":
-            formatted.append(f"User: {content}")
-        elif role == "assistant":
-            formatted.append(f"Assistant: {content}")
-        elif role == "summary":
-            formatted.append(f"Summary of earlier conversation:\n{content}")
-        else:
-            formatted.append(f"{role.capitalize()}: {content}")
-    return "\n".join(formatted)
-
-
-def orchestrate(user_request: str, conversation_history: list = None, logs: bool = True) -> None:
-    """Run a full conversation, letting the Manager steer between agents.
-    Set logs=False to suppress verbose output from CrewAI agents and crews.
-    conversation_history: the out-history (full chat history, user/assistant turns)
-    """
-    if conversation_history is None:
-        conversation_history = []
-    conversation_history = format_conversation_history(trim_history(conversation_history))
-
-    final_outputs = {}
-    history: List[Dict[str, Any]] = []  # in-history: agent mapping for this request
-    latest_response = ""
-    next_agent_name: str = "ManagerAgent"
-    stop = False
-    next_task_description = ""
-    if logs == False:
-        set_global_logging(False)  # Set to False to suppress all output
-    while not stop:
-        if check_convergence(history):
-            with suppress_stdout():
-                handle_convergence(history, user_request, final_outputs)
-            save_history(history)
-            break
-        if next_agent_name == "ManagerAgent":
-            with suppress_stdout():
-                decision_json, history = run_manager_agent(user_request, latest_response, history, conversation_history, logs)
-            save_history(history)
-            stop = decision_json.get("stop", False) or decision_json.get("next_agent") == "END"
-            if stop:
-                with suppress_stdout():
-                    handle_manager_stop(user_request, history, final_outputs, logs)
-                end_and_save(history, final_outputs)
-                break
-            next_agent_name = decision_json["next_agent"]
-            next_task_description = decision_json.get("next_task_description", "")
-        else:
-            with suppress_stdout():
-                agent_response, history = run_worker_agent(next_agent_name, next_task_description, user_request, latest_response, final_outputs, history, conversation_history, logs)
-            latest_response = agent_response
-            next_agent_name = "ManagerAgent"
-    end_and_save(history, final_outputs)
-    if logs == False:
-        set_global_logging(True)  # Set to False to suppress all output
-    return filter_output(final_outputs)
-
-
+register_agents()
 
 # FastAPI Endpoints
 @app.post("/chatbot/public", response_model=ChatbotResponse)
 async def chatbot_endpoint(request: ChatbotRequest):
-    """
-    Process user input through the multi-agent system.
-    """
     try:
         if not request.user_input.strip():
             raise HTTPException(status_code=400, detail="user_input cannot be empty")
-       
-        # Run the orchestration with logging disabled for API
         final_outputs = orchestrate(request.user_input, logs=False)
-       
         return ChatbotResponse(
             status="success",
             response=final_outputs,
             message="Request processed successfully"
         )
-   
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
- 
- 
+
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
-    """
-    Health check endpoint to verify the API is running.
-    """
     return HealthResponse(
         status="healthy",
         message="Chatbot API is running successfully"
     )
 
-
-# Run the FastAPI server with uvicorn 3l4an ana bnsa
-# uvicorn chatbot_api:app --host 0.0.0.0 --port 8080 --reload
+# Run the FastAPI server with uvicorn
 if __name__ == "__main__":
-    import sys    
     if len(sys.argv) > 1 and sys.argv[1] == "--server":
-        uvicorn.run(app, host="0.0.0.0", port=8080)
+        uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)
     else:
         _user_request = "summarize the Last transfer."
         print("User Input:", _user_request)

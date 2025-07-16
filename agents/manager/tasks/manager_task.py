@@ -1,6 +1,6 @@
 from crewai import Task
 from agents.manager.agent import manager_agent
-from agents.registry.agent import AGENT_REGISTRY, get_agent_descriptions
+from agents.registry.main import AGENT_REGISTRY, get_agent_descriptions
 from agents.manager.models.schemas import ManagerDecision
 
 def create_manager_task(context):

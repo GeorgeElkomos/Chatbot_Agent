@@ -1,4 +1,4 @@
-from main import orchestrate
+from orchestrator import orchestrate
 import os 
 os.environ["PYTHONIOENCODING"] = "utf-8"
 def chat_console():

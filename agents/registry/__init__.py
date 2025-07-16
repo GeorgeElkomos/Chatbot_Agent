@@ -1,1 +1,1 @@
-from .agent import get_agent, get_agent_output, register
+from .main import get_agent, get_agent_output, register
