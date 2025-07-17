@@ -2,30 +2,30 @@
   {
     "agent": "ManagerAgent",
     "output": {
-      "next_agent": "SQLBuilderAgent",
-      "next_task_description": "Load database schema, construct the appropriate SQL query with proper JOINs if needed to retrieve the last transfer that has values in the cost center and the account. Include the value of the cost center, account, the type of the transfer, and the date of the transfer. Execute the query and return the actual results.",
+      "next_agent": "PageNavigatorAgent",
+      "next_task_description": "Find the page containing details of 'FAR' and provide the navigation link and a user-friendly description of the page.",
       "stop": false
     }
   },
   {
-    "agent": "SQLBuilderAgent",
+    "agent": "PageNavigatorAgent",
     "output": {
-      "User_Frendly_response": "The last transfer with values in the cost center and the account is:",
-      "HTML_TABLE_DATA": "<table border=\"1\" cellpadding=\"4\" cellspacing=\"0\"><tr><th>TYPE</th><th>TRANSACTION_DATE</th><th>COST_CENTER_CODE</th><th>ACCOUNT_NAME</th></tr><tr><td>FAR</td><td>May</td><td>102001</td><td>العلاوة التكميلية مواطنون</td></tr></table>"
+      "response": "The Transfers page (/) contains details about Fund Adjustment Requests (FAR), which is the primary transfer type in the system. This page allows users to manage, search, and track FAR transfers.",
+      "navigation_link": "/"
     }
   },
   {
     "agent": "ManagerAgent",
     "output": {
       "next_agent": "END",
-      "next_task_description": "The user has received the last transfer with values in the cost center and the account, including the value of the cost center, account, the type of the transfer, and the date of the transfer. The user's request has been fulfilled.",
+      "next_task_description": "The user was redirected to the Transfers page which contains the details of FAR.",
       "stop": true
     }
   },
   {
     "agent": "GeneralQAAgent",
     "output": {
-      "response": "The last transfer with both cost center and account information is of type 'FAR', which occurred in May. The cost center code is 102001, and the account name is 'العلاوة التكميلية مواطنون'."
+      "response": "To find details about Fund Adjustment Requests (FAR), go to the Transfers page (/). This page allows you to manage, search, and track FAR transfers."
     }
   }
 ]

@@ -1,0 +1,8 @@
+[
+  {
+    "timestamp": "2025-07-17T16:00:45.436724",
+    "key_index": 1,
+    "status": "failed",
+    "error": "Rate limit exceeded for key ...bscY"
+  }
+]

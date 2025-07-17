@@ -8,6 +8,7 @@ import uvicorn
 from remove_emoji import remove_emoji
 from orchestrator import orchestrate
 from agents.registry.registration import register_agents
+from agents.llm_config.utils import get_api_usage_stats, reset_api_usage_stats
 from typing import Dict, Any
 from pydantic import BaseModel
 
@@ -22,6 +23,10 @@ class ChatbotResponse(BaseModel):
 class HealthResponse(BaseModel):
     status: str
     message: str
+
+class APIUsageResponse(BaseModel):
+    status: str
+    usage_stats: Dict[str, Any]
 
 app = FastAPI(title="Chatbot API", version="1.0.0")
 app.add_middleware(
@@ -56,6 +61,27 @@ async def health_check():
         status="healthy",
         message="Chatbot API is running successfully"
     )
+
+@app.get("/api/usage", response_model=APIUsageResponse)
+async def get_api_usage():
+    """Get API usage statistics"""
+    try:
+        stats = get_api_usage_stats()
+        return APIUsageResponse(
+            status="success",
+            usage_stats=stats
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving usage stats: {str(e)}")
+
+@app.post("/api/usage/reset")
+async def reset_usage_stats():
+    """Reset API usage statistics"""
+    try:
+        reset_api_usage_stats()
+        return {"status": "success", "message": "API usage statistics reset successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error resetting usage stats: {str(e)}")
 
 # Run the FastAPI server with uvicorn
 if __name__ == "__main__":

@@ -1,9 +1,9 @@
 {
-  "SQLBuilderAgent": {
-    "User_Frendly_response": "The last transfer with values in the cost center and the account is:",
-    "HTML_TABLE_DATA": "<table border=\"1\" cellpadding=\"4\" cellspacing=\"0\"><tr><th>TYPE</th><th>TRANSACTION_DATE</th><th>COST_CENTER_CODE</th><th>ACCOUNT_NAME</th></tr><tr><td>FAR</td><td>May</td><td>102001</td><td>العلاوة التكميلية مواطنون</td></tr></table>"
+  "PageNavigatorAgent": {
+    "response": "The Transfers page (/) contains details about Fund Adjustment Requests (FAR), which is the primary transfer type in the system. This page allows users to manage, search, and track FAR transfers.",
+    "navigation_link": "/"
   },
   "GeneralQAAgent": {
-    "response": "The last transfer with both cost center and account information is of type 'FAR', which occurred in May. The cost center code is 102001, and the account name is 'العلاوة التكميلية مواطنون'."
+    "response": "To find details about Fund Adjustment Requests (FAR), go to the Transfers page (/). This page allows you to manage, search, and track FAR transfers."
   }
 }
