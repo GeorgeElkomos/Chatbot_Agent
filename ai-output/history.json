@@ -2,30 +2,56 @@
   {
     "agent": "ManagerAgent",
     "output": {
-      "next_agent": "SQLBuilderAgent",
-      "next_task_description": "Load database schema, construct the appropriate SQL query with proper JOINs if needed to retrieve the last transfer that has values in the cost center and the account. Include the value of the cost center, account, the type of the transfer, and the date of the transfer. Execute the query and return the actual results.",
+      "next_agent": "PageNavigatorAgent",
+      "next_task_description": "Navigate to the page for creating a new transfer and provide a user-friendly description of the page.",
       "stop": false
     }
   },
   {
-    "agent": "SQLBuilderAgent",
+    "agent": "PageNavigatorAgent",
     "output": {
-      "User_Frendly_response": "The last transfer with values in the cost center and the account is:",
-      "HTML_TABLE_DATA": "<table border=\"1\" cellpadding=\"4\" cellspacing=\"0\"><tr><th>TYPE</th><th>TRANSACTION_DATE</th><th>COST_CENTER_CODE</th><th>ACCOUNT_NAME</th></tr><tr><td>FAR</td><td>May</td><td>102001</td><td>العلاوة التكميلية مواطنون</td></tr></table>"
+      "response": "This page is for creating Fund Adjustment Requests (FAR), the primary type of transfer. It handles internal budget adjustments and fund movements within the Ministry of Finance. You can create, edit, delete, view, and track transfers on this page.",
+      "navigation_link": "/"
     }
   },
   {
     "agent": "ManagerAgent",
     "output": {
-      "next_agent": "END",
-      "next_task_description": "The user has received the last transfer with values in the cost center and the account, including the value of the cost center, account, the type of the transfer, and the date of the transfer. The user's request has been fulfilled.",
-      "stop": true
+      "next_agent": "PageNavigatorAgent",
+      "next_task_description": "Provide the specific navigation link for creating a new transfer and a user-friendly description of that page.",
+      "stop": false
+    }
+  },
+  {
+    "agent": "PageNavigatorAgent",
+    "output": {
+      "response": "This page is for creating Fund Adjustment Requests (FAR), the primary type of transfer. It handles internal budget adjustments and fund movements within the Ministry of Finance. You can create, edit, delete, view details, and track transfers on this page. User interactions feature intuitive interfaces for Viewing Transfers, Creating Transfers (modal forms with validation, step-by-step wizard, auto-save, and templates), Editing Transfers and Progress Tracking.",
+      "navigation_link": "/"
+    }
+  },
+  {
+    "agent": "ManagerAgent",
+    "output": {
+      "next_agent": "PageNavigatorAgent",
+      "next_task_description": "Provide the specific navigation link for creating a new transfer and a user-friendly description of that specific page or form.",
+      "stop": false
+    }
+  },
+  {
+    "agent": "PageNavigatorAgent",
+    "output": {
+      "response": "This page is for creating Fund Adjustment Requests (FAR), the primary type of transfer. It handles internal budget adjustments and fund movements within the Ministry of Finance. You can create, edit, delete, view details, and track transfers on this page. User interactions feature intuitive interfaces for Viewing Transfers, Creating Transfers (modal forms with validation, step-by-step wizard, auto-save, and templates), Editing Transfers and Progress Tracking.",
+      "navigation_link": "/"
     }
   },
   {
     "agent": "GeneralQAAgent",
     "output": {
-      "response": "The last transfer with both cost center and account information is of type 'FAR', which occurred in May. The cost center code is 102001, and the account name is 'العلاوة التكميلية مواطنون'."
+      "response": "This page is for creating Fund Adjustment Requests (FAR), the primary type of transfer. It handles internal budget adjustments and fund movements within the Ministry of Finance. You can create, edit, delete, view details, and track transfers on this page. User interactions feature intuitive interfaces for Viewing Transfers, Creating Transfers (modal forms with validation, step-by-step wizard, auto-save, and templates), Editing Transfers and Progress Tracking."
     }
+  },
+  {
+    "agent": "System",
+    "output": "Convergence detected: repeated identical results. Stopping."
   }
 ]

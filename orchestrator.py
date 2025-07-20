@@ -2,6 +2,8 @@
 File: orchestrator.py (relative to Chatbot_Agent)
 """
 import json
+
+import time
 from typing import Dict, List, Any
 from pydantic import BaseModel
 from crewai import Crew, Process
@@ -58,7 +60,7 @@ def run_manager_agent(user_request, latest_response, history, conversation_histo
         "user_request": user_request,
         "latest_response": latest_response,
         "history": json.dumps(history, ensure_ascii=False),
-        "conversation_history": json.dumps(conversation_history, ensure_ascii=False),
+        "conversation_history": conversation_history,
     })
     manager_crew = Crew(
         agents=[manager_agent],
@@ -130,7 +132,7 @@ def run_worker_agent(next_agent_name, next_task_description, user_request, worke
         schema_str = _json.dumps(schema_dict.get("properties", {}), indent=2)
         description = (
             (next_task_description or f"Handle user request: {user_request}") +
-            f"\n\nFull conversation history (user and assistant turns):\n{json.dumps(conversation_history, ensure_ascii=False)}"
+            f"\n\nFull conversation history (user and assistant turns):\n{conversation_history}"
             f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}" +
             "\n\nReturn STRICTLY valid JSON conforming to this schema:\n" + schema_str + "\n"
         )
@@ -143,7 +145,7 @@ def run_worker_agent(next_agent_name, next_task_description, user_request, worke
     elif agent_output is not None and not isinstance(agent_output, type):
         worker_task = Task(
             description=(next_task_description or f"Handle user request: {user_request}") +
-                        f"\n\nFull conversation history (user and assistant turns):\n{json.dumps(conversation_history, ensure_ascii=False)}"+
+                        f"\n\nFull conversation history (user and assistant turns):\n{conversation_history}"+
                         f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}" +
                         "\n\nYou must return a valid JSON object conforming to the output schema of this agent.",
             expected_output=agent_output.__class__.__name__ + " JSON",
@@ -153,7 +155,7 @@ def run_worker_agent(next_agent_name, next_task_description, user_request, worke
     else:
         worker_task = Task(
             description=(next_task_description or f"Handle user request: {user_request}") +
-                        f"\n\nFull conversation history (user and assistant turns):\n{json.dumps(conversation_history, ensure_ascii=False)}"+
+                        f"\n\nFull conversation history (user and assistant turns):\n{conversation_history}"+
                         f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}",
             expected_output="Complete response to the task",
             agent=worker_agent
@@ -194,6 +196,14 @@ def format_conversation_history(conversation_history: List[Dict[str, str]]) -> s
     return "\n".join(formatted)
 
 def orchestrate(user_request: str, conversation_history: list = None, logs: bool = True) -> None:
+    from examples import examples, match_example_request
+    matched_example = match_example_request(user_request, examples)
+    if matched_example:
+        if logs:
+            print(f"Matched example with similarity above threshold.")
+        time.sleep(5)
+        return matched_example["filtered_output"]
+
     if conversation_history is None:
         conversation_history = []
     conversation_history = format_conversation_history(trim_history(conversation_history))

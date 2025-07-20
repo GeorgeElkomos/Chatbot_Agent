@@ -16,7 +16,7 @@ def create_manager_task(context):
         "# Manager Decision\n\n"
         "## Available Agents and Their Capabilities\n"
         f"{agent_info_text}\n\n"
-        "## Full conversation history (user and assistant turns, JSON)\n{conversation_history}\n\n"
+        "## Full conversation history (user and assistant turns)\n{conversation_history}\n\n"
         "## Latest user request\n{user_request}\n\n"
         "## Latest agent response\n{latest_response}\n\n"
         "## Per-request agent mapping history (JSON)\n{history}\n\n"
