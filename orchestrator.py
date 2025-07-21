@@ -2,7 +2,6 @@
 File: orchestrator.py (relative to Chatbot_Agent)
 """
 import json
-
 import time
 from typing import Dict, List, Any
 from pydantic import BaseModel
@@ -10,7 +9,7 @@ from crewai import Crew, Process
 from agents import *
 from utils import set_global_logging, suppress_stdout, save_history, end_and_save, filter_output
 
-MAX_MESSAGES = 2*3  # Keep last 3 user+assistant pairs
+MAX_MESSAGES = 2*3  # Keep last 3 user + assistant pairs
 
 def check_convergence(history, N=2):
     if len(history) >= N * 2:
@@ -195,7 +194,7 @@ def format_conversation_history(conversation_history: List[Dict[str, str]]) -> s
             formatted.append(f"{role.capitalize()}: {content}")
     return "\n".join(formatted)
 
-def orchestrate(user_request: str, conversation_history: list = None, logs: bool = True) -> None:
+def orchestrate(user_request: str, conversation_history: list = [], logs: bool = True) -> None:
     from examples import examples, match_example_request
     matched_example = match_example_request(user_request, examples)
     if matched_example:
@@ -203,9 +202,6 @@ def orchestrate(user_request: str, conversation_history: list = None, logs: bool
             print(f"Matched example with similarity above threshold.")
         time.sleep(5)
         return matched_example["filtered_output"]
-
-    if conversation_history is None:
-        conversation_history = []
     conversation_history = format_conversation_history(trim_history(conversation_history))
     final_outputs = {}
     history: List[Dict[str, Any]] = []
