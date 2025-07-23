@@ -62,7 +62,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--server":
         uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)
     else:
-        _user_request = "summarize the Last transfer."
+        _user_request = "Navigate me to Dashboard."
         print("User Input:", _user_request)
         response = orchestrate(_user_request, logs=False)
         print("Final outputs:", response)

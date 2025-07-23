@@ -2,56 +2,9 @@
   {
     "agent": "ManagerAgent",
     "output": {
-      "next_agent": "PageNavigatorAgent",
-      "next_task_description": "Navigate to the page for creating a new transfer and provide a user-friendly description of the page.",
+      "next_agent": "GeneralQAAgent",
+      "next_task_description": "I will summarize my response explaining that my system will navigate me to the Dashboard as per your request.",
       "stop": false
     }
-  },
-  {
-    "agent": "PageNavigatorAgent",
-    "output": {
-      "response": "This page is for creating Fund Adjustment Requests (FAR), the primary type of transfer. It handles internal budget adjustments and fund movements within the Ministry of Finance. You can create, edit, delete, view, and track transfers on this page.",
-      "navigation_link": "/"
-    }
-  },
-  {
-    "agent": "ManagerAgent",
-    "output": {
-      "next_agent": "PageNavigatorAgent",
-      "next_task_description": "Provide the specific navigation link for creating a new transfer and a user-friendly description of that page.",
-      "stop": false
-    }
-  },
-  {
-    "agent": "PageNavigatorAgent",
-    "output": {
-      "response": "This page is for creating Fund Adjustment Requests (FAR), the primary type of transfer. It handles internal budget adjustments and fund movements within the Ministry of Finance. You can create, edit, delete, view details, and track transfers on this page. User interactions feature intuitive interfaces for Viewing Transfers, Creating Transfers (modal forms with validation, step-by-step wizard, auto-save, and templates), Editing Transfers and Progress Tracking.",
-      "navigation_link": "/"
-    }
-  },
-  {
-    "agent": "ManagerAgent",
-    "output": {
-      "next_agent": "PageNavigatorAgent",
-      "next_task_description": "Provide the specific navigation link for creating a new transfer and a user-friendly description of that specific page or form.",
-      "stop": false
-    }
-  },
-  {
-    "agent": "PageNavigatorAgent",
-    "output": {
-      "response": "This page is for creating Fund Adjustment Requests (FAR), the primary type of transfer. It handles internal budget adjustments and fund movements within the Ministry of Finance. You can create, edit, delete, view details, and track transfers on this page. User interactions feature intuitive interfaces for Viewing Transfers, Creating Transfers (modal forms with validation, step-by-step wizard, auto-save, and templates), Editing Transfers and Progress Tracking.",
-      "navigation_link": "/"
-    }
-  },
-  {
-    "agent": "GeneralQAAgent",
-    "output": {
-      "response": "This page is for creating Fund Adjustment Requests (FAR), the primary type of transfer. It handles internal budget adjustments and fund movements within the Ministry of Finance. You can create, edit, delete, view details, and track transfers on this page. User interactions feature intuitive interfaces for Viewing Transfers, Creating Transfers (modal forms with validation, step-by-step wizard, auto-save, and templates), Editing Transfers and Progress Tracking."
-    }
-  },
-  {
-    "agent": "System",
-    "output": "Convergence detected: repeated identical results. Stopping."
   }
 ]
