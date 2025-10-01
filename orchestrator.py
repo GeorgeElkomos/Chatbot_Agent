@@ -195,13 +195,13 @@ def format_conversation_history(conversation_history: List[Dict[str, str]]) -> s
     return "\n".join(formatted)
 
 def orchestrate(user_request: str, conversation_history: list = [], logs: bool = True) -> None:
-    # from examples import examples, match_example_request
-    # matched_example = match_example_request(user_request, examples)
-    # if matched_example:
-    #     if logs:
-    #         print(f"Matched example with similarity above threshold.")
-    #     time.sleep(5)
-    #     return matched_example["filtered_output"]
+    from examples import examples, match_example_request
+    matched_example = match_example_request(user_request, examples)
+    if matched_example:
+        if logs:
+            print(f"Matched example with similarity above threshold.")
+        time.sleep(5)
+        return matched_example["filtered_output"]
     conversation_history = format_conversation_history(trim_history(conversation_history))
     final_outputs = {}
     history: List[Dict[str, Any]] = []
