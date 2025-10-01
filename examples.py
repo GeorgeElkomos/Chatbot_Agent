@@ -173,21 +173,52 @@ examples = [
             "GeneralQAAgent": "The Capital Expenditure (Capex) for current year is 20,000,000"
         },
     },
+    {
+        "user_request": "What is the current status of our budget envelopes?",
+        "filtered_output": {
+            "GeneralQAAgent": "Initial Envelope: 3,825,657,203.85 EGP\nProjected Envelope: 3,825,675,603.85 EGP\nFinal Envelope: 3,825,674,553.85 EGP\n📊 Analysis: The budget shows minimal variation with a slight projected increase of 18,400 EGP from initial envelope, while the final envelope indicates a marginal decrease of 1,050 EGP from projected figures. Overall budget stability is maintained with variations less than 0.001% of total envelope."
+        },
+    },
+    {
+        "user_request": "How many transactions are still pending vs approved?",
+        "filtered_output": {
+            "GeneralQAAgent": "Total Transfers: 130\nApproved Transfers: 7\nPending Transfers: 104\n📊 Analysis: Currently 80% of transfers are pending approval, while only 5.4% have been approved. This indicates a significant number of transfers in the approval pipeline that need processing."
+        },
+    },
+    {
+        "user_request": "What is the breakdown of transfers vs additional budget?",
+        "filtered_output": {
+            "GeneralQAAgent": "Transfers: 92\nAdditional Budget: 22\nTotal Transactions: 114\n📊 Analysis: Transfers represent 80.7% of all transactions, while additional budget requests make up 19.3%. This distribution indicates that most financial activities are focused on reallocating existing budgets rather than requesting new funds."
+        },
+    },
+    {
+        "user_request": "What percentage of total transactions are still pending?",
+        "filtered_output": {
+            "GeneralQAAgent": "Pending: 104 out of 130\nPercentage: 80%\n📊 Analysis: With 80% of transactions pending, the current approval process requires attention. This high pending rate suggests a need to review and potentially optimize the approval workflow to improve processing efficiency."
+        },
+    },
 ]
+
+
 
 import difflib
 import string
 from typing import Optional, Dict
 
+
 def normalize(text: str) -> str:
     """Lowercase and remove punctuation and extra whitespace from text."""
-    return ''.join(c for c in text.lower() if c not in string.punctuation).strip()
+    return "".join(c for c in text.lower() if c not in string.punctuation).strip()
+
 
 def similarity_ratio(a: str, b: str) -> float:
     """Return a similarity ratio between two strings."""
     return difflib.SequenceMatcher(None, a, b).ratio()
 
-def match_example_request(user_request: str, examples: list, threshold: float = 0.5) -> Optional[Dict]:
+
+def match_example_request(
+    user_request: str, examples: list, threshold: float = 0.5
+) -> Optional[Dict]:
     """Match user request to example if similarity is above threshold."""
     user_normalized = normalize(user_request)
     best_match = None
