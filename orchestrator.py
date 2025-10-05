@@ -8,8 +8,29 @@ from pydantic import BaseModel
 from crewai import Crew, Process
 from agents import *
 from utils import set_global_logging, suppress_stdout, save_history, end_and_save, filter_output
-
+from agents.fusion_Analytics.smart_db_updater import get_updater, trigger_update
 MAX_MESSAGES = 2*3  # Keep last 3 user + assistant pairs
+
+
+def initialize_app():
+    updater = get_updater(cooldown_seconds=5)
+    updater.set_update_function(refresh_expense_database)
+    print("✅ Database updater initialized")
+
+def refresh_expense_database(db_path: str):
+    """Refresh the expense database"""
+    import sqlite3
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    # Your refresh logic
+    cursor.execute("SELECT COUNT(*) FROM expense_report_data")
+    print(f"Refreshed: {cursor.fetchone()[0]} records")
+    
+    conn.close()
+
+initialize_app()
+
 
 def check_convergence(history, N=2):
     if len(history) >= N * 2:
@@ -196,12 +217,16 @@ def format_conversation_history(conversation_history: List[Dict[str, str]]) -> s
 
 def orchestrate(user_request: str, conversation_history: list = [], logs: bool = True) -> None:
     from examples import examples, match_example_request
-    matched_example = match_example_request(user_request, examples)
-    if matched_example:
-        if logs:
-            print(f"Matched example with similarity above threshold.")
-        time.sleep(5)
-        return matched_example["filtered_output"]
+    # matched_example = match_example_request(user_request, examples)
+    # if matched_example:
+    #     if logs:
+    #         print(f"Matched example with similarity above threshold.")
+    #     time.sleep(5)
+    #     return matched_example["filtered_output"]
+
+    
+
+
     conversation_history = format_conversation_history(trim_history(conversation_history))
     final_outputs = {}
     history: List[Dict[str, Any]] = []
