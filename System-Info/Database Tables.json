@@ -1,6 +1,6 @@
 {
   "tables": {
-    "XX_USER": {
+    "XX_USER_XX": {
       "description": "Stores user account information, including username, password, role, user level, and authentication details. This table is the core of the authentication and authorization system.",
       "columns": {
         "id": {
@@ -98,7 +98,7 @@
         "user_level_id": 1
       }
     },
-    "XX_USER_LEVEL": {
+    "XX_USER_LEVEL_XX": {
       "description": "Defines user levels/roles in the system.",
       "columns": {
         "id": {
@@ -130,7 +130,7 @@
         "level_order": 1
       }
     },
-    "XX_NOTIFICATION": {
+    "XX_NOTIFICATION_XX": {
       "description": "Stores notifications for users.",
       "columns": {
         "id": {
@@ -190,7 +190,7 @@
         "is_shown": true
       }
     },
-    "XX_BUDGET_TRANSFER": {
+    "XX_BUDGET_TRANSFER_XX": {
       "description": "Tracks budget transfers between users.",
       "columns": {
         "transaction_id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTOINCREMENT"], "description": "Unique identifier for each transfer."},
@@ -266,7 +266,7 @@
       },
       "notes": "The 'user_id' field is not a foreign key in the Django model, but is used to reference a user. If you want referential integrity, consider making it a foreign key."
     },
-    "XX_BUDGET_TRANSFER_ATTACHMENT": {
+    "XX_BUDGET_TRANSFER_ATTACHMENT_XX": {
       "description": "Stores file attachments for budget transfers.",
       "columns": {
         "attachment_id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTOINCREMENT"], "description": "Unique identifier for each attachment."},
@@ -295,7 +295,7 @@
         "upload_date": "2025-07-03T10:30:00"
       }
     },
-    "XX_BUDGET_TRANSFER_REJECT_REASON": {
+    "XX_BUDGET_TRANSFER_REJECT_REASON_XX": {
       "description": "Stores reject reasons for budget transfers.",
       "columns": {
         "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTOINCREMENT"], "description": "Unique identifier for each reject reason."},
@@ -320,7 +320,7 @@
         "reject_by": "manager1"
       }
     },
-    "XX_ADJDTRANSACTIONTRANSFER": {
+    "XX_ADJDTRANSACTIONTRANSFER_XX": {
       "description": "Tracks ADJD transaction transfers.",
       "columns": {
         "transfer_id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTOINCREMENT"], "description": "Unique identifier for each transfer."},
@@ -365,7 +365,7 @@
         "file": null
       }
     },
-    "XX_ACCOUNT": {
+    "XX_ACCOUNT_XX": {
       "description": "Represents ADJD accounts.",
       "columns": {
         "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTOINCREMENT"], "description": "Unique identifier for each account."},
@@ -381,7 +381,7 @@
         "alias_default": "Main Account"
       }
     },
-    "XX_ENTITY": {
+    "XX_ENTITY_XX": {
       "description": "Represents ADJD entities.",
       "columns": {
         "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTOINCREMENT"], "description": "Unique identifier for each entity."},
@@ -397,7 +397,7 @@
         "alias_default": "Main Entity"
       }
     },
-    "XX_PIVOTFUND": {
+    "XX_PIVOTFUND_XX": {
       "description": "Represents ADJD pivot funds.",
       "columns": {
         "id": {"type": "BIGINT", "constraints": ["PRIMARY KEY", "AUTOINCREMENT"], "description": "Unique identifier for each pivot fund."},
@@ -441,7 +441,7 @@
         }
       ]
     },
-    "XX_ADJD_TRANSACTION_AUDIT": {
+    "XX_ADJD_TRANSACTION_AUDIT_XX": {
       "description": "Represents ADJD transaction audit records.",
       "columns": {
         "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTOINCREMENT"], "description": "Unique identifier for each audit record."},
@@ -461,7 +461,7 @@
         "account_code": "AC001"
       }
     },
-    "XX_ACCOUNT_ENTITY_LIMIT": {
+    "XX_ACCOUNT_ENTITY_LIMIT_XX": {
       "description": "Represents ADJD account entity limits.",
       "columns": {
         "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY", "AUTOINCREMENT"], "description": "Unique identifier for each limit."},

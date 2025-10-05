@@ -1,5 +1,9 @@
 {
+  "SQLBuilderAgent": {
+    "User_Frendly_response": "Here is a list of all active users and their count.",
+    "HTML_TABLE_DATA": "<table border=\"1\" cellpadding=\"4\" cellspacing=\"0\"><tr><th>USERNAME</th></tr><tr><td>admin22</td></tr><tr><td>Admin1</td></tr><tr><td>finance head</td></tr><tr><td>user1</td></tr><tr><td>planner</td></tr><tr><td>finance manager</td></tr><tr><td>planner2</td></tr><tr><td>admin</td></tr><tr><td>admin2</td></tr><tr><td>admin3</td></tr><tr><td>admin4</td></tr><tr><td>george</td></tr><tr><td>admin7</td></tr><tr><td>unithead</td></tr><tr><td>test123</td></tr></table><br><table border=\"1\" cellpadding=\"4\" cellspacing=\"0\"><tr><th>COUNT(*)</th></tr><tr><td>15</td></tr></table>"
+  },
   "GeneralQAAgent": {
-    "response": "Your task is to provide a clear, user-friendly explanation of the technical outputs and database results. Use plain English for a non-technical audience. Always explain in simple terms and avoid unnecessary jargon or code blocks."
+    "response": "The list of active users includes: admin22, Admin1, finance head, user1, planner, finance manager, planner2, admin, admin2, admin3, admin4, george, admin7, unithead, and test123. There are a total of 15 active users."
   }
 }

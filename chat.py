@@ -20,7 +20,7 @@ def chat_console():
         response = orchestrate(user_input,conversation_history, logs=False)
         conversation_history.append({"role": "user", "content": user_input})
         conversation_history.append({"role": "assistant", "content": str(response)})
-        print("Chatbot:", response['GeneralQAAgent']['response'], "\n\n")
+        print("Chatbot:", response['GeneralQAAgent'], "\n\n")
 
 if __name__ == "__main__":
     chat_console()

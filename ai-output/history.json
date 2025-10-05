@@ -2,9 +2,30 @@
   {
     "agent": "ManagerAgent",
     "output": {
-      "next_agent": "GeneralQAAgent",
-      "next_task_description": "I will summarize my response explaining that my system will navigate me to the Dashboard as per your request.",
+      "next_agent": "SQLBuilderAgent",
+      "next_task_description": "Load database schema, construct the appropriate SQL query to retrieve a list of all active users and their count, execute it, and return the actual results.",
       "stop": false
+    }
+  },
+  {
+    "agent": "SQLBuilderAgent",
+    "output": {
+      "User_Frendly_response": "Here is a list of all active users and their count.",
+      "HTML_TABLE_DATA": "<table border=\"1\" cellpadding=\"4\" cellspacing=\"0\"><tr><th>USERNAME</th></tr><tr><td>admin22</td></tr><tr><td>Admin1</td></tr><tr><td>finance head</td></tr><tr><td>user1</td></tr><tr><td>planner</td></tr><tr><td>finance manager</td></tr><tr><td>planner2</td></tr><tr><td>admin</td></tr><tr><td>admin2</td></tr><tr><td>admin3</td></tr><tr><td>admin4</td></tr><tr><td>george</td></tr><tr><td>admin7</td></tr><tr><td>unithead</td></tr><tr><td>test123</td></tr></table><br><table border=\"1\" cellpadding=\"4\" cellspacing=\"0\"><tr><th>COUNT(*)</th></tr><tr><td>15</td></tr></table>"
+    }
+  },
+  {
+    "agent": "ManagerAgent",
+    "output": {
+      "next_agent": "END",
+      "next_task_description": "The user requested a list of active users and their count, which has been provided.",
+      "stop": true
+    }
+  },
+  {
+    "agent": "GeneralQAAgent",
+    "output": {
+      "response": "The list of active users includes: admin22, Admin1, finance head, user1, planner, finance manager, planner2, admin, admin2, admin3, admin4, george, admin7, unithead, and test123. There are a total of 15 active users."
     }
   }
 ]
