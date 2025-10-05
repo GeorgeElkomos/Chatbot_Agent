@@ -134,3 +134,4 @@ def execute_sql_query(sql_query: str, user_id: str = None) -> str:
             "status": "error",
             "error": error_msg
         })
+

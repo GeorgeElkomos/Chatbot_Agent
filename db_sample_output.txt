@@ -1,0 +1,37 @@
+Table Name: expense_report_data
+==================================================
+
+Column Names and Types:
+------------------------------
+id                          : INTEGER
+expense_report_id           : INTEGER
+report_submit_date          : TIMESTAMP
+expense_report_num          : TEXT
+report_purpose              : TEXT
+expense_status_code         : TEXT (Values: PAID, NULL)
+expense_report_total        : REAL
+reimbursement_currency_code : TEXT (Values: AED, USD, NULL)
+business_unit_name          : TEXT
+employee_name               : TEXT
+expense_line_id             : INTEGER
+expense_type_name           : TEXT
+merchant_name               : TEXT
+reimbursable_amount         : REAL
+receipt_amount              : REAL
+receipt_currency_code       : TEXT
+expense_date                : DATE
+description                 : TEXT
+justification               : TEXT
+selected_for_audit          : TEXT (Values: N, Y, NULL)
+violation_type              : TEXT (Values: DAILY_LIMIT, INDIVIDUAL_LIMIT, MONTHLY_LIMIT, RECEIPT_MISSING, NULL)
+exceeded_amount             : REAL
+allowable_amount            : REAL
+
+Sample Rows (selected for diversity):
+------------------------------
+ id  expense_report_id  report_submit_date expense_report_num               report_purpose expense_status_code  expense_report_total reimbursement_currency_code business_unit_name                              employee_name  expense_line_id                   expense_type_name  merchant_name  reimbursable_amount  receipt_amount receipt_currency_code        expense_date                                           description                                         justification selected_for_audit violation_type  exceeded_amount  allowable_amount  rn
+111    300000304173188 2025-09-18 00:00:00     ER000304173188                         None                PAID               3225.60                         AED               None                      Khaled Ahmed Al Zaabi  300000304173189                Education Assistance Ahmed Al Zaabi              3225.60         3225.60                   AED 2025-09-15 00:00:00                                                  None                                                  None                  N           None              NaN               NaN   1
+ 50    300000128074088                None     ER000128074088                 Tokyo trip 1                PAID                104.63                         USD               None                              Varini Sharma  300000128074102 Taxi/Ride Sharing (Business Travel)           Uber               100.29          100.29                   USD 2023-02-04 00:00:00                                                  None                                                  None                  N    DAILY_LIMIT             0.29             100.0   1
+ 49    300000128074088                None     ER000128074088                 Tokyo trip 1                PAID                104.63                         USD               None                              Varini Sharma  300000128074094                     Travel Expenses           Uber               100.29          100.29                   USD 2023-02-04 00:00:00 Cab ride from home to airport for Tokyo business trip Cab ride from home to airport for Tokyo business trip                  N           None              NaN               NaN   1
+ 46    300000285799490                None     ER000285799490                         None                PAID               1533.01                         AED               None Noora Ahmed Mohamedrasool Mohamed Alkhoori  300000277126432          Professional Certification           None              1533.01          310.00                   GBP 2025-07-21 00:00:00                              ACCA FR and TX exam fees                                                  None                  Y           None              NaN               NaN   1
+ 42    300000136881537                None     ER000136881537 Misc April 2023 MPP Expenses                PAID               2253.75                         USD               None      Thibaud Thibaud  .Desfosses Desfosses  300000136970824             Flight - Inflight Wi Fi         United                 8.00            8.00                   USD 2023-04-11 00:00:00                                wifi no receipt needed                                                  None                  N           None              NaN               NaN   1
