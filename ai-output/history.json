@@ -2,30 +2,31 @@
   {
     "agent": "ManagerAgent",
     "output": {
-      "next_agent": "SQLBuilderAgent",
-      "next_task_description": "Load database schema, construct the appropriate SQL query to retrieve a list of all active users and their count, execute it, and return the actual results.",
+      "next_agent": "FusionAnalyticsAgent",
+      "next_task_description": "Calculate the total paid expenses in April from the expense_report_data table. Then, identify the top 5 expenses with the highest amounts, including their justification and description. Return the results in a user-friendly format.",
       "stop": false
     }
   },
   {
-    "agent": "SQLBuilderAgent",
+    "agent": "FusionAnalyticsAgent",
     "output": {
-      "User_Frendly_response": "Here is a list of all active users and their count.",
-      "HTML_TABLE_DATA": "<table border=\"1\" cellpadding=\"4\" cellspacing=\"0\"><tr><th>USERNAME</th></tr><tr><td>admin22</td></tr><tr><td>Admin1</td></tr><tr><td>finance head</td></tr><tr><td>user1</td></tr><tr><td>planner</td></tr><tr><td>finance manager</td></tr><tr><td>planner2</td></tr><tr><td>admin</td></tr><tr><td>admin2</td></tr><tr><td>admin3</td></tr><tr><td>admin4</td></tr><tr><td>george</td></tr><tr><td>admin7</td></tr><tr><td>unithead</td></tr><tr><td>test123</td></tr></table><br><table border=\"1\" cellpadding=\"4\" cellspacing=\"0\"><tr><th>COUNT(*)</th></tr><tr><td>15</td></tr></table>"
+      "query_executed": "SELECT SUM(expense_report_total) FROM expense_report_data WHERE strftime('%Y-%m', report_submit_date) = '2024-04' AND expense_status_code = 'PAID'; SELECT reimbursable_amount, justification, description FROM expense_report_data ORDER BY reimbursable_amount DESC LIMIT 5",
+      "User_Frendly_response": "The total amount of paid expenses in April 2024 is $1,579,795.62. The top 5 expenses with the highest reimbursable amounts are as follows:\n\n1. $71,373,263.44 (Justification: Null, Description: Null)\n2. $163,643.72 (Justification: Null, Description: Petty cash replenishment)\n3. $159,295.03 (Justification: Null, Description: Petty Cash Replenishment)\n4. $147,053.22 (Justification: Null, Description: Petty Cash replenishment - 30 Apr 2025 to 03 Jul 2025)\n5. $107,372.88 (Justification: Null, Description: 60% of my Spring tuition)",
+      "HTML_TABLE_DATA": "<table border=\"1\">\n<tr><th>Reimbursable Amount</th><th>Justification</th><th>Description</th></tr>\n<tr><td>71373263.44</td><td></td><td></td></tr>\n<tr><td>163643.72</td><td></td><td>Petty cash replenishment</td></tr>\n<tr><td>159295.03</td><td></td><td>Petty Cash Replenishment </td></tr>\n<tr><td>147053.22</td><td></td><td>Petty Cash replenishment - 30 Apr 2025 to 03 Jul 2025</td></tr>\n<tr><td>107372.88</td><td></td><td>60% of my Spring tuition </td></tr>\n</table>"
     }
   },
   {
     "agent": "ManagerAgent",
     "output": {
       "next_agent": "END",
-      "next_task_description": "The user requested a list of active users and their count, which has been provided.",
+      "next_task_description": "The user's request has been fulfilled. The total paid expenses in April and the top 5 expenses with justification and description have been provided.",
       "stop": true
     }
   },
   {
     "agent": "GeneralQAAgent",
     "output": {
-      "response": "The list of active users includes: admin22, Admin1, finance head, user1, planner, finance manager, planner2, admin, admin2, admin3, admin4, george, admin7, unithead, and test123. There are a total of 15 active users."
+      "response": "In April 2024, the total amount of paid expenses was $1,579,795.62. Here's a breakdown of the top 5 expenses with the highest reimbursable amounts:\n\n1.  The largest expense was $71,373,263.44, but the justification and description are missing.\n2.  The second-highest expense was $163,643.72 for petty cash replenishment, but the justification is missing.\n3.  The third-highest expense was $159,295.03 for Petty Cash Replenishment, but the justification is missing.\n4.  The fourth-highest expense was $147,053.22 for petty cash replenishment from April 30, 2025, to July 3, 2025, but the justification is missing.\n5.  The fifth-highest expense was $107,372.88, covering 60% of Spring tuition, but the justification is missing."
     }
   }
 ]

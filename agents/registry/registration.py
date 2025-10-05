@@ -1,13 +1,21 @@
 """
 File: agents/registry/registration.py (relative to Chatbot_Agent)
 """
+
 from agents import (
-    page_navigator_agent, NavigationResponse,
-    sql_builder_agent, DatabaseResponse,
-    general_qa_agent, QAResponse,
-    manager_agent, ManagerDecision,
-    register
+    page_navigator_agent,
+    NavigationResponse,
+    sql_builder_agent,
+    DatabaseResponse,
+    general_qa_agent,
+    QAResponse,
+    manager_agent,
+    ManagerDecision,
+    Fusion_Analytics_Agent,
+    FusionAnalyticsResponse,
+    register,
 )
+
 
 def register_agents():
     register(
@@ -20,7 +28,7 @@ def register_agents():
             "Final output must be a valid JSON object: {'navigation_link': '<link or empty string>', 'response': '<user-friendly description>'}. "
             "The { navigation_link } field should be the navigation link (e.g., '/', '/register', '/admin/user-management') or an empty string if no navigation is needed. "
             "The { response } field should contain instructions, a summary, or user-friendly information about the link or requested pages."
-        )
+        ),
     )
     register(
         sql_builder_agent,
@@ -32,17 +40,37 @@ def register_agents():
             "- For order total calculations: Specifically mention 'Calculate using JOIN across Orders, OrderItems, and Products tables'\n"
             "- Never assign just 'build a query' - always require execution and results\n\n"
             "Final output must be a valid JSON object: {'User_Frendly_response': '<user-friendly description>', 'HTML_TABLE_DATA': '<table data IN HTML FORMAT or empty string>'}."
-        )
+        ),
     )
     register(
         general_qa_agent,
         QAResponse,
         "GeneralQAAgent",
-        "Summarizes technical outputs and database results in user-friendly language. Use for explaining complex data or providing final summaries to users."
+        "Summarizes technical outputs and database results in user-friendly language. Use for explaining complex data or providing final summaries to users.",
+    )
+    register(
+        Fusion_Analytics_Agent,
+        FusionAnalyticsResponse,
+        "FusionAnalyticsAgent",
+        (
+            "Analyzes Oracle Fusion expense report data from the expense_report_data table. Specializes in: "
+            "- Employee spending patterns and profiles "
+            "- Policy violation detection and analysis (DAILY_LIMIT, MONTHLY_LIMIT, INDIVIDUAL_LIMIT, RECEIPT_MISSING) "
+            "- Audit compliance tracking and risk assessment "
+            "- Merchant spending analysis and preferences "
+            "- Financial trends and spending patterns over time "
+            "- Receipt compliance and amount verification "
+            "- Multi-currency expense analysis "
+            "- Expense category breakdowns (Travel, Education, Food, etc.) "
+            "Use for questions about: expense reports, spending analytics, violation patterns, audit flags, "
+            "employee expense behavior, merchant relationships, or any financial analysis from expense data. "
+            "Always executes actual SQL queries and returns real data with insights. "
+            "Final output: {'query_executed': '<SQL query>', 'User_Frendly_response': '<insights>', 'HTML_TABLE_DATA': '<table>'}"
+        ),
     )
     register(
         manager_agent,
         ManagerDecision,
         "ManagerAgent",
-        "Orchestrates the conversation flow and decides which agent should handle each request based on user input and conversation context."
+        "Orchestrates the conversation flow and decides which agent should handle each request based on user input and conversation context.",
     )

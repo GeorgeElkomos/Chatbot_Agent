@@ -1,33 +1,44 @@
 """
 File: orchestrator.py (relative to Chatbot_Agent)
 """
+
 import json
 import time
 from typing import Dict, List, Any
 from pydantic import BaseModel
 from crewai import Crew, Process
 from agents import *
-from utils import set_global_logging, suppress_stdout, save_history, end_and_save, filter_output
+from utils import (
+    set_global_logging,
+    suppress_stdout,
+    save_history,
+    end_and_save,
+    filter_output,
+)
 from agents.fusion_Analytics.smart_db_updater import get_updater, trigger_update
-MAX_MESSAGES = 2*3  # Keep last 3 user + assistant pairs
+
+MAX_MESSAGES = 2 * 3  # Keep last 3 user + assistant pairs
 
 
 def initialize_app():
     updater = get_updater(cooldown_seconds=5)
     updater.set_update_function(refresh_expense_database)
-    print("✅ Database updater initialized")
+    print("[OK] Database updater initialized")
+
 
 def refresh_expense_database(db_path: str):
     """Refresh the expense database"""
     import sqlite3
+
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    
+
     # Your refresh logic
     cursor.execute("SELECT COUNT(*) FROM expense_report_data")
     print(f"Refreshed: {cursor.fetchone()[0]} records")
-    
+
     conn.close()
+
 
 initialize_app()
 
@@ -35,12 +46,14 @@ initialize_app()
 def check_convergence(history, N=2):
     if len(history) >= N * 2:
         last_outputs = [
-            entry["output"] for entry in reversed(history)
+            entry["output"]
+            for entry in reversed(history)
             if entry.get("agent") not in ("ManagerAgent", "GeneralQAAgent")
         ][:N]
         if len(last_outputs) == N and all(r == last_outputs[0] for r in last_outputs):
             return True
     return False
+
 
 def handle_convergence(history, user_request, final_outputs):
     last_agent_result = None
@@ -53,6 +66,7 @@ def handle_convergence(history, user_request, final_outputs):
             break
     if last_agent_result:
         from crewai import Task
+
         final_task = Task(
             description=(
                 f"The following data was calculated by agent '{last_agent_name}':\n{last_agent_result}\n"
@@ -60,39 +74,50 @@ def handle_convergence(history, user_request, final_outputs):
             ),
             expected_output="User-friendly summary of the results",
             agent=get_agent("GeneralQAAgent"),
-            output_json=QAResponse
+            output_json=QAResponse,
         )
         final_crew = Crew(
             agents=[get_agent("GeneralQAAgent")],
             tasks=[final_task],
             process=Process.sequential,
             verbose=False,
-            telemetry=False
+            telemetry=False,
         )
         gen_result = final_crew.kickoff()
         final_outputs["GeneralQAAgent"] = gen_result.json_dict
         history.append({"agent": "GeneralQAAgent", "output": gen_result.json_dict})
-    history.append({"agent": "System", "output": "Convergence detected: repeated identical results. Stopping."})
+    history.append(
+        {
+            "agent": "System",
+            "output": "Convergence detected: repeated identical results. Stopping.",
+        }
+    )
     return True
 
-def run_manager_agent(user_request, latest_response, history, conversation_history, logs=True):
-    manager_task = create_manager_task({
-        "user_request": user_request,
-        "latest_response": latest_response,
-        "history": json.dumps(history, ensure_ascii=False),
-        "conversation_history": conversation_history,
-    })
+
+def run_manager_agent(
+    user_request, latest_response, history, conversation_history, logs=True
+):
+    manager_task = create_manager_task(
+        {
+            "user_request": user_request,
+            "latest_response": latest_response,
+            "history": json.dumps(history, ensure_ascii=False),
+            "conversation_history": conversation_history,
+        }
+    )
     manager_crew = Crew(
         agents=[manager_agent],
         tasks=[manager_task],
         process=Process.sequential,
         verbose=logs,
-        telemetry=False
+        telemetry=False,
     )
     manager_result = manager_crew.kickoff()
     decision_json = manager_result.json_dict
     history.append({"agent": "ManagerAgent", "output": decision_json})
     return decision_json, history
+
 
 def handle_manager_stop(user_request, history, final_outputs, logs=True):
     if "GeneralQAAgent" not in final_outputs:
@@ -105,6 +130,7 @@ def handle_manager_stop(user_request, history, final_outputs, logs=True):
                 last_agent_name = agent_name
                 break
         from crewai import Task
+
         if last_agent_result:
             final_task = Task(
                 description=(
@@ -113,79 +139,104 @@ def handle_manager_stop(user_request, history, final_outputs, logs=True):
                 ),
                 expected_output="User-friendly summary of the results",
                 agent=get_agent("GeneralQAAgent"),
-                output_json=QAResponse
+                output_json=QAResponse,
             )
         else:
             final_task = Task(
                 description=f"Provide a final answer to the user request: {user_request}",
                 expected_output="User-friendly summary of the results",
                 agent=get_agent("GeneralQAAgent"),
-                output_json=QAResponse
+                output_json=QAResponse,
             )
         final_crew = Crew(
             agents=[get_agent("GeneralQAAgent")],
             tasks=[final_task],
             process=Process.sequential,
             verbose=logs,
-            telemetry=False
+            telemetry=False,
         )
         gen_result = final_crew.kickoff()
         final_outputs["GeneralQAAgent"] = gen_result.json_dict
         history.append({"agent": "GeneralQAAgent", "output": gen_result.json_dict})
     return True
 
-def run_worker_agent(next_agent_name, next_task_description, user_request, worker_agent_latest_responce, final_outputs, history, conversation_history, logs=True):
+
+def run_worker_agent(
+    next_agent_name,
+    next_task_description,
+    user_request,
+    worker_agent_latest_responce,
+    final_outputs,
+    history,
+    conversation_history,
+    logs=True,
+):
     worker_agent = get_agent(next_agent_name)
     if worker_agent is None:
         from agents.registry.main import get_agent_descriptions
+
         registered_agents = get_agent_descriptions()
-        raise ValueError(f"Unknown agent requested by Manager: {next_agent_name}. Available agents: {list(registered_agents.keys())}")
+        raise ValueError(
+            f"Unknown agent requested by Manager: {next_agent_name}. Available agents: {list(registered_agents.keys())}"
+        )
     from crewai import Task
+
     agent_output = get_agent_output(next_agent_name)
     schema_str = ""
-    if agent_output is not None and isinstance(agent_output, type) and issubclass(agent_output, BaseModel):
+    if (
+        agent_output is not None
+        and isinstance(agent_output, type)
+        and issubclass(agent_output, BaseModel)
+    ):
         try:
             schema_dict = agent_output.model_json_schema()
         except AttributeError:
             schema_dict = agent_output.schema()
         import json as _json
+
         schema_str = _json.dumps(schema_dict.get("properties", {}), indent=2)
         description = (
-            (next_task_description or f"Handle user request: {user_request}") +
-            f"\n\nFull conversation history (user and assistant turns):\n{conversation_history}"
-            f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}" +
-            "\n\nReturn STRICTLY valid JSON conforming to this schema:\n" + schema_str + "\n"
+            (next_task_description or f"Handle user request: {user_request}")
+            + f"\n\nFull conversation history (user and assistant turns):\n{conversation_history}"
+            f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}"
+            + "\n\nReturn STRICTLY valid JSON conforming to this schema:\n"
+            + schema_str
+            + "\n"
         )
         worker_task = Task(
             description=description,
             expected_output=agent_output.__name__ + " JSON",
             agent=worker_agent,
-            output_json=agent_output
+            output_json=agent_output,
         )
     elif agent_output is not None and not isinstance(agent_output, type):
         worker_task = Task(
-            description=(next_task_description or f"Handle user request: {user_request}") +
-                        f"\n\nFull conversation history (user and assistant turns):\n{conversation_history}"+
-                        f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}" +
-                        "\n\nYou must return a valid JSON object conforming to the output schema of this agent.",
+            description=(
+                next_task_description or f"Handle user request: {user_request}"
+            )
+            + f"\n\nFull conversation history (user and assistant turns):\n{conversation_history}"
+            + f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}"
+            + "\n\nYou must return a valid JSON object conforming to the output schema of this agent.",
             expected_output=agent_output.__class__.__name__ + " JSON",
             agent=worker_agent,
-            output=agent_output
+            output=agent_output,
         )
     else:
         worker_task = Task(
-            description=(next_task_description or f"Handle user request: {user_request}") +
-                        f"\n\nFull conversation history (user and assistant turns):\n{conversation_history}"+
-                        f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}",
+            description=(
+                next_task_description or f"Handle user request: {user_request}"
+            )
+            + f"\n\nFull conversation history (user and assistant turns):\n{conversation_history}"
+            + f"\n\nLatest response from the agent:\n {json.dumps(worker_agent_latest_responce, ensure_ascii=False)}",
             expected_output="Complete response to the task",
-            agent=worker_agent
+            agent=worker_agent,
         )
     worker_crew = Crew(
         agents=[worker_agent],
         tasks=[worker_task],
         process=Process.sequential,
         verbose=logs,
-        telemetry=False
+        telemetry=False,
     )
     worker_result = worker_crew.kickoff()
     agent_response = worker_result.json_dict
@@ -193,12 +244,14 @@ def run_worker_agent(next_agent_name, next_task_description, user_request, worke
     history.append({"agent": next_agent_name, "output": agent_response})
     return agent_response, history
 
+
 def trim_history(conversation_history: List[Dict[str, str]]) -> List[Dict[str, str]]:
     if len(conversation_history) <= MAX_MESSAGES:
         return conversation_history
     old_history = conversation_history[:-MAX_MESSAGES]
     new_history = conversation_history[-MAX_MESSAGES:]
     return new_history
+
 
 def format_conversation_history(conversation_history: List[Dict[str, str]]) -> str:
     formatted = []
@@ -215,8 +268,12 @@ def format_conversation_history(conversation_history: List[Dict[str, str]]) -> s
             formatted.append(f"{role.capitalize()}: {content}")
     return "\n".join(formatted)
 
-def orchestrate(user_request: str, conversation_history: list = [], logs: bool = True) -> None:
+
+def orchestrate(
+    user_request: str, conversation_history: list = [], logs: bool = True
+) -> None:
     from examples import examples, match_example_request
+
     # matched_example = match_example_request(user_request, examples)
     # if matched_example:
     #     if logs:
@@ -224,10 +281,9 @@ def orchestrate(user_request: str, conversation_history: list = [], logs: bool =
     #     time.sleep(5)
     #     return matched_example["filtered_output"]
 
-    
-
-
-    conversation_history = format_conversation_history(trim_history(conversation_history))
+    conversation_history = format_conversation_history(
+        trim_history(conversation_history)
+    )
     final_outputs = {}
     history: List[Dict[str, Any]] = []
     latest_response = ""
@@ -244,9 +300,14 @@ def orchestrate(user_request: str, conversation_history: list = [], logs: bool =
             break
         if next_agent_name == "ManagerAgent":
             with suppress_stdout():
-                decision_json, history = run_manager_agent(user_request, latest_response, history, conversation_history, logs)
+                decision_json, history = run_manager_agent(
+                    user_request, latest_response, history, conversation_history, logs
+                )
             save_history(history)
-            stop = decision_json.get("stop", False) or decision_json.get("next_agent") == "END"
+            stop = (
+                decision_json.get("stop", False)
+                or decision_json.get("next_agent") == "END"
+            )
             if stop:
                 with suppress_stdout():
                     handle_manager_stop(user_request, history, final_outputs, logs)
@@ -256,7 +317,16 @@ def orchestrate(user_request: str, conversation_history: list = [], logs: bool =
             next_task_description = decision_json.get("next_task_description", "")
         else:
             with suppress_stdout():
-                agent_response, history = run_worker_agent(next_agent_name, next_task_description, user_request, latest_response, final_outputs, history, conversation_history, logs)
+                agent_response, history = run_worker_agent(
+                    next_agent_name,
+                    next_task_description,
+                    user_request,
+                    latest_response,
+                    final_outputs,
+                    history,
+                    conversation_history,
+                    logs,
+                )
             latest_response = agent_response
             next_agent_name = "ManagerAgent"
     end_and_save(history, final_outputs)
