@@ -32,7 +32,7 @@ def get_report_data():
            <soap12:Body>
               <pub:runReport>
                  <pub:reportRequest>
-                    <pub:reportAbsolutePath>API/expenss_report_v1_Ready.xdo</pub:reportAbsolutePath>
+                    <pub:reportAbsolutePath>API/Expensess_Report.xdo</pub:reportAbsolutePath>
                     <pub:attributeFormat>xlsx</pub:attributeFormat>
                     <pub:sizeOfDataChunkDownload>-1</pub:sizeOfDataChunkDownload>
                     <pub:parameterNameValues>
