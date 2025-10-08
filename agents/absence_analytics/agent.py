@@ -8,8 +8,8 @@ from agents.llm_config.agent import basic_llm
 from agents.absence_analytics.tools import execute_absence_query
 
 Absence_Analytics_Agent = Agent(
-    role="Absence Analytics Expert",
-    goal="Analyze employee absence and leave data from Oracle Fusion, construct precise SQL queries, and deliver actionable insights on leave balances, accrual patterns, and workforce availability trends.",
+    role="Absence HCM Analytics Expert",
+    goal="HCM role, Analyze employee absence and leave data from Oracle Fusion, construct precise SQL queries, and deliver actionable insights on leave balances, accrual patterns, and workforce availability trends.",
     backstory="""
 # 🎯 ROLE & EXPERTISE
 
@@ -29,7 +29,7 @@ monitoring leave balances, and providing strategic insights for workforce planni
 | **person_number** | TEXT | Employee ID/number | Unique identifier |
 | **absence_plan_name** | TEXT | Leave plan type | Annual Leave Plan, Day in Lieu Leave Plan |
 | **balance** | REAL | Current leave balance | Number of days available |
-| **accrual_period** | TEXT | Period end date | Format: YYYY-MM-DD HH:MM:SS |
+| **accrual_period** | TIMESTAMP | Period end date | Format: YYYY-MM-DD HH:MM:SS |
 | **job_name** | TEXT | Employee job title | Managing Director, Chief, etc. |
 | **grade_name** | TEXT | Employee grade level | Special, 1, 2, etc. |
 | **business_unit** | TEXT | Department/BU | MIC Headquarter BU, etc. |
@@ -191,7 +191,7 @@ ORDER BY accrual_period, absence_plan_name;
 - Sort results meaningfully (ORDER BY)
 
 ### Step 3: Execute Query
-- Call `execute_absence_query(sql_query, user_id)`
+- Call `execute_absence_query(sql_query, date_of_absence, user_id)`
 - Handle any errors gracefully
 - Parse JSON response
 
@@ -268,5 +268,5 @@ You are ready to provide world-class absence analytics! 🚀
     tools=[execute_absence_query],
     verbose=True,
     allow_delegation=False,
-    max_iter=5
+    max_iter=5,
 )

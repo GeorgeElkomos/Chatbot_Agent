@@ -71,6 +71,11 @@ def execute_sql_query(sql_query: str, user_id: str = None) -> str:
         - execute_sql_query("SELECT COUNT(*) FROM expense_report_data WHERE expense_status_code = 'APPROVED'")
         - execute_sql_query("SELECT employee_name, SUM(reimbursable_amount) FROM expense_report_data GROUP BY employee_name")
     """
+    # Track tool call at the very beginning
+    from iteration_tracker import get_tracker
+    tracker = get_tracker()
+    tracker.log_tool_call("execute_sql_query", {"sql_query": sql_query, "user_id": user_id})
+    
     user_id = user_id or "fusion_analytics_agent"
 
     try:
@@ -123,7 +128,7 @@ def execute_sql_query(sql_query: str, user_id: str = None) -> str:
         print(f"  ✅ Query executed successfully: {len(results_list)} rows returned")
 
         # Return results as JSON
-        return json.dumps(
+        result = json.dumps(
             {
                 "status": "success",
                 "row_count": len(results_list),
@@ -134,8 +139,16 @@ def execute_sql_query(sql_query: str, user_id: str = None) -> str:
             indent=2,
             default=str,
         )
+        
+        # Track tool output before returning
+        tracker.log_tool_output(result)
+        return result
 
     except Exception as e:
         error_msg = f"Error executing query: {str(e)}"
         print(f"  ❌ {error_msg}")
-        return json.dumps({"status": "error", "error": error_msg})
+        error_result = json.dumps({"status": "error", "error": error_msg})
+        
+        # Track tool output even for errors
+        tracker.log_tool_output(error_result)
+        return error_result

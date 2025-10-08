@@ -1,6 +1,7 @@
 """
 File: main.py (relative to Chatbot_Agent)
 """
+
 import sys
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,17 +12,21 @@ from agents.registry.registration import register_agents
 from typing import Dict, Any
 from pydantic import BaseModel
 
+
 class ChatbotRequest(BaseModel):
     user_input: str
+
 
 class ChatbotResponse(BaseModel):
     status: str
     response: Dict[str, Any]
     message: str = None
 
+
 class HealthResponse(BaseModel):
     status: str
     message: str
+
 
 app = FastAPI(title="Chatbot API", version="1.0.0")
 app.add_middleware(
@@ -35,6 +40,7 @@ app.add_middleware(
 remove_emoji()
 register_agents()
 
+
 # FastAPI Endpoints
 @app.post("/chatbot/public", response_model=ChatbotResponse)
 async def chatbot_endpoint(request: ChatbotRequest):
@@ -45,24 +51,34 @@ async def chatbot_endpoint(request: ChatbotRequest):
         return ChatbotResponse(
             status="success",
             response=final_outputs,
-            message="Request processed successfully"
+            message="Request processed successfully",
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
     return HealthResponse(
-        status="healthy",
-        message="Chatbot API is running successfully"
+        status="healthy", message="Chatbot API is running successfully"
     )
+
 
 # Run the FastAPI server with uvicorn
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--server":
         uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)
     else:
-        _user_request = "Navigate me to Dashboard."
+        # Test absence analytics with iteration tracking
+        _user_request = "Show me employees with leave balance less than 5 in 2025"
         print("User Input:", _user_request)
-        response = orchestrate(_user_request, logs=False)
-        print("Final outputs:", response)
+        response = orchestrate(_user_request, logs=True)
+        print("\n" + "=" * 80)
+        print("FINAL OUTPUTS:")
+        print("=" * 80)
+        import json
+
+        print(json.dumps(response, indent=2))
+        print("\n" + "=" * 80)
+        print("Check ai-output/history.json for detailed iteration tracking!")
+        print("=" * 80)

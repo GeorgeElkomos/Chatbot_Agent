@@ -15,7 +15,7 @@ def remove_emoji():
             # Reconfigure stdout and stderr to use UTF-8 with error handling
             sys.stdout.reconfigure(encoding='utf-8', errors='replace')
             sys.stderr.reconfigure(encoding='utf-8', errors='replace')
-            
+
             # Set Windows console to UTF-8 if possible
             import ctypes
             ctypes.windll.kernel32.SetConsoleOutputCP(65001)
@@ -35,11 +35,9 @@ def remove_emoji():
                         else:
                             safe_args.append(arg)
                     original_print(*safe_args, **kwargs)
-            
+
             import builtins
             builtins.print = safe_print
-
-
 
     # Patch Rich console after import to disable all output
     try:
@@ -92,4 +90,3 @@ def remove_emoji():
         crewai_event_bus.emit = dummy_emit
     except Exception:
         pass
-

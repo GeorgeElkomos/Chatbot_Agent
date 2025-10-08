@@ -75,7 +75,7 @@ def register_agents():
         AbsenceResponse,
         "AbsenceAnalyticsAgent",
         (
-            "Analyzes Oracle Fusion employee absence and leave data from the absence_report_data table. Specializes in: "
+            "HCM for Analyzes Oracle Fusion employee absence and leave data from the absence_report_data table. Specializes in: "
             "- Employee leave balance tracking and analysis "
             "- Leave plan utilization patterns (Annual Leave, Day in Lieu, etc.) "
             "- Workforce availability and leave trends "

@@ -16,6 +16,7 @@ from utils import (
     filter_output,
 )
 from agents.fusion_Analytics.smart_db_updater import get_updater, trigger_update
+from iteration_tracker import get_tracker
 
 MAX_MESSAGES = 2 * 3  # Keep last 3 user + assistant pairs
 
@@ -106,6 +107,11 @@ def run_manager_agent(
             "conversation_history": conversation_history,
         }
     )
+
+    # Start tracking manager agent execution
+    tracker = get_tracker()
+    tracker.start_agent_execution("ManagerAgent")
+
     manager_crew = Crew(
         agents=[manager_agent],
         tasks=[manager_task],
@@ -115,7 +121,23 @@ def run_manager_agent(
     )
     manager_result = manager_crew.kickoff()
     decision_json = manager_result.json_dict
-    history.append({"agent": "ManagerAgent", "output": decision_json})
+
+    # Get tracking data and add to history
+    track_internal = tracker.end_agent_execution()
+
+    history.append(
+        {
+            "agent": "ManagerAgent",
+            "output": decision_json,
+            "track_internal": track_internal,
+        }
+    )
+
+    # Save history immediately after manager decision
+    from utils import save_history
+
+    save_history(history)
+
     return decision_json, history
 
 
@@ -148,6 +170,10 @@ def handle_manager_stop(user_request, history, final_outputs, logs=True):
                 agent=get_agent("GeneralQAAgent"),
                 output_json=QAResponse,
             )
+        # Start tracking GeneralQA agent execution
+        tracker = get_tracker()
+        tracker.start_agent_execution("GeneralQAAgent")
+
         final_crew = Crew(
             agents=[get_agent("GeneralQAAgent")],
             tasks=[final_task],
@@ -157,7 +183,23 @@ def handle_manager_stop(user_request, history, final_outputs, logs=True):
         )
         gen_result = final_crew.kickoff()
         final_outputs["GeneralQAAgent"] = gen_result.json_dict
-        history.append({"agent": "GeneralQAAgent", "output": gen_result.json_dict})
+
+        # Get tracking data and add to history
+        track_internal = tracker.end_agent_execution()
+
+        history.append(
+            {
+                "agent": "GeneralQAAgent",
+                "output": gen_result.json_dict,
+                "track_internal": track_internal,
+            }
+        )
+
+        # Save history immediately after GeneralQA execution
+        from utils import save_history
+
+        save_history(history)
+
     return True
 
 
@@ -231,6 +273,10 @@ def run_worker_agent(
             expected_output="Complete response to the task",
             agent=worker_agent,
         )
+    # Start tracking this agent's execution
+    tracker = get_tracker()
+    tracker.start_agent_execution(next_agent_name)
+
     worker_crew = Crew(
         agents=[worker_agent],
         tasks=[worker_task],
@@ -240,8 +286,24 @@ def run_worker_agent(
     )
     worker_result = worker_crew.kickoff()
     agent_response = worker_result.json_dict
+
+    # Get tracking data and add to history
+    track_internal = tracker.end_agent_execution()
+
     final_outputs[next_agent_name] = agent_response
-    history.append({"agent": next_agent_name, "output": agent_response})
+    history.append(
+        {
+            "agent": next_agent_name,
+            "output": agent_response,
+            "track_internal": track_internal,
+        }
+    )
+
+    # Save history immediately after worker agent execution
+    from utils import save_history
+
+    save_history(history)
+
     return agent_response, history
 
 
