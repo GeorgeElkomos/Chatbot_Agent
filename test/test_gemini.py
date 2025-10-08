@@ -403,7 +403,7 @@ def process_pdf_with_deepseek(pdf_path: str, user_prompt: str, model_name: str =
         return None
 
 
-def extract_invoice_with_deepseek(pdf_path: str, model_name: str = "deepseek-r1:32b"):
+def extract_invoice_with_deepseek(pdf_path: str, model_name: str = "gemma3:27b"): 
     """
     Extract structured invoice data using DeepSeek-R1 (optimized for reasoning)
     
@@ -412,32 +412,45 @@ def extract_invoice_with_deepseek(pdf_path: str, model_name: str = "deepseek-r1:
         model_name: Ollama model name (default: deepseek-r1:32b)
     """
     
-    invoice_prompt = """You are a professional invoice data extraction specialist. Please extract the following information from this invoice document:
+    invoice_prompt = """You are a professional invoice data extraction specialist. Your task is to accurately and completely extract structured information from the provided invoice document.
 
-**INVOICE HEADER - Extract these fields:**
+========================
+INVOICE HEADER FIELDS
+========================
+Extract the following fields exactly as shown in the invoice:
 1. PO Number (Purchase Order Number)
 2. Supplier Name (Vendor/Company Name)
 3. Invoice Number
 4. Invoice Total Amount (Grand Total)
 5. Invoice Date
 6. Payment Term (e.g., Net 30, Due on Receipt, etc.)
-7. Vendor TRN (Tax Registration Number / VAT Number)
+7. Vendor TRN / VAT Number / Tax Registration Number
 
-**INVOICE LINES - Extract all line items with:**
+========================
+INVOICE LINE ITEMS
+========================
+Extract ALL individual line items with these fields:
 1. Line Number (Item sequence number)
-2. Line Description (Product/Service description)
-3. Tax Rate (VAT/Tax percentage)
-4. Line Amount (Line total amount)
+2. Line Description (Exact item/service description)
+3. Tax Rate (VAT or tax percentage)
+4. Line Amount (Include currency symbol if present)
 
-**IMPORTANT INSTRUCTIONS:**
-- If any field is not found in the document, mark it as "Not Found" or "N/A"
-- For Invoice Lines, extract ALL line items present in the invoice
-- Preserve exact values, especially for amounts and numbers
-- For dates, use the format as shown in the document
-- For amounts, include currency symbol if present
+========================
+IMPORTANT EXTRACTION RULES
+========================
+- If any field is not present, write "Not Found" or "N/A".
+- Preserve all values exactly as they appear — do not modify or infer.
+- For dates, keep the exact format from the document (do not reformat).
+- For amounts, include the currency symbol (e.g., $1,230.50 or AED 250).
+- Preserve decimal precision and spacing exactly.
+- For multi-page invoices, include all pages.
+- If multiple totals or dates appear, use the one clearly labeled or most relevant.
+- Validate that the extracted total makes logical sense relative to line items.
+- Ensure the final output is valid JSON — no missing commas, quotes, or brackets.
 
-**OUTPUT FORMAT: Return as JSON:**
-```json
+========================
+OUTPUT FORMAT (RETURN AS VALID JSON)
+========================
 {
   "invoice_header": {
     "po_number": "",
@@ -457,9 +470,17 @@ def extract_invoice_with_deepseek(pdf_path: str, model_name: str = "deepseek-r1:
     }
   ]
 }
-```
 
-Please extract the data now."""
+========================
+VALIDATION BEFORE RETURN
+========================
+- Check that all expected fields exist in the JSON.
+- Ensure no field is left empty — use "Not Found" if missing.
+- Verify that the JSON is syntactically correct.
+- Make sure line items reflect all items in the invoice.
+- Double-check all amounts and text are extracted exactly as in the document.
+
+Now extract the data from the invoice document and return only the valid JSON output."""
     
     return process_pdf_with_deepseek(pdf_path, invoice_prompt, model_name)
 

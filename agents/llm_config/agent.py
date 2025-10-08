@@ -20,4 +20,4 @@ basic_llm = LLM(
 
 
 # from .ollama_llm import OllamaLLM
-# basic_llm = OllamaLLM(model="deepseek-r1:1.5b", temperature=0.1)
+# basic_llm = OllamaLLM(model="gemma3:27b", temperature=0.1)

@@ -13,6 +13,8 @@ from agents import (
     ManagerDecision,
     Fusion_Analytics_Agent,
     FusionAnalyticsResponse,
+    Absence_Analytics_Agent,
+    AbsenceResponse,
     register,
 )
 
@@ -30,18 +32,18 @@ def register_agents():
             "The { response } field should contain instructions, a summary, or user-friendly information about the link or requested pages."
         ),
     )
-    register(
-        sql_builder_agent,
-        DatabaseResponse,
-        "SQLBuilderAgent",
-        (
-            "Constructs and executes complex SQL queries with proper JOINs. Specializes in database operations, order calculations, and data analysis. Always loads schema first and returns actual query results."
-            "- Always instruct them to 'Load database schema, construct the appropriate SQL query with proper JOINs if needed, execute it, and return the actual results'\n"
-            "- For order total calculations: Specifically mention 'Calculate using JOIN across Orders, OrderItems, and Products tables'\n"
-            "- Never assign just 'build a query' - always require execution and results\n\n"
-            "Final output must be a valid JSON object: {'User_Frendly_response': '<user-friendly description>', 'HTML_TABLE_DATA': '<table data IN HTML FORMAT or empty string>'}."
-        ),
-    )
+    # register(
+    #     sql_builder_agent,
+    #     DatabaseResponse,
+    #     "SQLBuilderAgent",
+    #     (
+    #         "Constructs and executes complex SQL queries with proper JOINs. Specializes in database operations, order calculations, and data analysis. Always loads schema first and returns actual query results."
+    #         "- Always instruct them to 'Load database schema, construct the appropriate SQL query with proper JOINs if needed, execute it, and return the actual results'\n"
+    #         "- For order total calculations: Specifically mention 'Calculate using JOIN across Orders, OrderItems, and Products tables'\n"
+    #         "- Never assign just 'build a query' - always require execution and results\n\n"
+    #         "Final output must be a valid JSON object: {'User_Frendly_response': '<user-friendly description>', 'HTML_TABLE_DATA': '<table data IN HTML FORMAT or empty string>'}."
+    #     ),
+    # )
     register(
         general_qa_agent,
         QAResponse,
@@ -66,6 +68,27 @@ def register_agents():
             "employee expense behavior, merchant relationships, or any financial analysis from expense data. "
             "Always executes actual SQL queries and returns real data with insights. "
             "Final output: {'query_executed': '<SQL query>', 'User_Frendly_response': '<insights>', 'HTML_TABLE_DATA': '<table>'}"
+        ),
+    )
+    register(
+        Absence_Analytics_Agent,
+        AbsenceResponse,
+        "AbsenceAnalyticsAgent",
+        (
+            "Analyzes Oracle Fusion employee absence and leave data from the absence_report_data table. Specializes in: "
+            "- Employee leave balance tracking and analysis "
+            "- Leave plan utilization patterns (Annual Leave, Day in Lieu, etc.) "
+            "- Workforce availability and leave trends "
+            "- Department-level leave analysis "
+            "- High balance employees (potential leave liability) "
+            "- Zero balance employees (leave exhaustion monitoring) "
+            "- Leave accrual period tracking "
+            "- Business unit leave distribution "
+            "- Grade/job level leave patterns "
+            "Use for questions about: leave balances, absence patterns, leave plans, workforce availability, "
+            "employee time-off analysis, department leave trends, or any HR analytics related to employee absence. "
+            "Always executes actual SQL queries and returns real data with insights. "
+            "Final output: {'User_Friendly_response': '<insights>', 'HTML_TABLE_DATA': '<table>'}"
         ),
     )
     register(

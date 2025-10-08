@@ -18,7 +18,7 @@ COOLDOWN_SECONDS = 10  # Check/update every 10 seconds max
 db_updater = get_updater(cooldown_seconds=COOLDOWN_SECONDS)
 
 
-def refresh_fusion_analytics_data(db_path: str):
+def refresh_fusion_analytics_data():
     """
     Custom refresh logic for Fusion Analytics database
     Fetches latest data from Oracle Fusion and loads into SQLite
@@ -86,7 +86,7 @@ def execute_sql_query(sql_query: str, user_id: str = None) -> str:
         if status["can_update_now"]:
             print(f"  🔄 Cooldown expired, updating database...")
             updated = trigger_update(user_id=user_id)
-
+            refresh_fusion_analytics_data()
             if updated:
                 print(f"  ✅ Database was updated before query")
             else:
