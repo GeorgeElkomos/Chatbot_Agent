@@ -12,7 +12,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 # Create base LLM
 _base_llm = LLM(
     name="BasicLLM",
-    model="gemini/gemini-2.0-flash-lite",
+    model="gemini/gemini-2.0-flash",
     api_key="AIzaSyC9nt1TDrXevbKCVNdHTIlUsoHdPpe5dY0",  # "AIzaSyC9nt1TDrXevbKCVNdHTIlUsoHdPpe5dY0", "AIzaSyB33PBwcjDf47uXtFwy2Szvz607TJSEkZY" , "AIzaSyCOH5doSg_YSyAr8V5RSHAp0R5YbsNRP6g"
     output_dir=OUTPUT_DIR,
     max_tokens=8192,
@@ -24,10 +24,12 @@ _base_llm = LLM(
 
 # _base_llm = LLM(
 #     name="BasicLLM",
-#     model="ollama/gemma3:27b",  # Format: ollama/<model_name>
+#     model="ollama/deepseek-r1:32b",  # Format: ollama/<model_name>
 #     base_url="http://localhost:11434",  # Ollama default port
 #     output_dir=OUTPUT_DIR,
 #     temperature=0.1,
+#     max_tokens=8192,
+#     top_p=0.9,
 #     # Note: Ollama doesn't use api_key or top_p
 # )
 
