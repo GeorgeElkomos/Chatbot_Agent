@@ -15,6 +15,8 @@ from agents import (
     FusionAnalyticsResponse,
     Absence_Analytics_Agent,
     AbsenceResponse,
+    org_chart_agent,
+    OrgChartResponse,
     register,
 )
 
@@ -89,6 +91,27 @@ def register_agents():
             "employee time-off analysis, department leave trends, or any HR analytics related to employee absence. "
             "Always executes actual SQL queries and returns real data with insights. "
             "Final output: {'User_Friendly_response': '<insights>', 'HTML_TABLE_DATA': '<table>'}"
+        ),
+    )
+    register(
+        org_chart_agent,
+        OrgChartResponse,
+        "OrgChartAgent",
+        (
+            "Analyzes employee organizational hierarchy from the employee_hierarchy table. Specializes in: "
+            "- Manager-employee relationships and reporting lines "
+            "- Team structures and composition "
+            "- Department organization and headcount "
+            "- Organizational hierarchy and reporting chains "
+            "- Manager span of control analysis "
+            "- Employee lookup by name or person number "
+            "- Direct reports and indirect reports mapping "
+            "- Cross-department organizational analysis "
+            "Use for questions about: who reports to whom, team sizes, manager assignments, department structures, "
+            "organizational hierarchy, reporting relationships, org charts, team composition, or any queries about "
+            "the organizational structure and employee-manager relationships. "
+            "Always executes actual SQL queries with smart auto-updates from Oracle Fusion. "
+            "Final output: {'response': '<insights>', 'statistics': {'total_employees': N, 'unique_managers': M, 'unique_departments': D}}"
         ),
     )
     register(

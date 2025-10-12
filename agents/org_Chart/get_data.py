@@ -59,7 +59,7 @@ def get_org_chart_data(effective_date=None):
                     <pub:sizeOfDataChunkDownload>-1</pub:sizeOfDataChunkDownload>
                     <pub:parameterNameValues>
                            <pub:item>
-                                 <pub:name>P_EFFECTIVE_DATE</pub:name>
+                                 <pub:name>P_EFF_DATE</pub:name>
                                  <pub:values>
                                     <pub:item>{effective_date}</pub:item>
                                  </pub:values>

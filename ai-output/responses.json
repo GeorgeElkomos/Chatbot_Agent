@@ -1,5 +1,13 @@
 {
+  "OrgChartAgent": {
+    "response": "I queried the employee hierarchy database for Hussein Al Hosani's manager. The query returned no results, indicating that either Hussein Al Hosani is not in the system or does not have a manager assigned.",
+    "statistics": {
+      "total_employees": 0,
+      "unique_managers": 0,
+      "unique_departments": 0
+    }
+  },
   "GeneralQAAgent": {
-    "response": "It looks like you've provided a file path. I am unable to access local files on your computer for security reasons. Could you please clarify your request or ask another question?"
+    "response": "I checked the employee database to find Hussein Al Hosani's manager, but the search didn't find anyone. This means either Hussein Al Hosani isn't in the system, or he doesn't have a manager listed."
   }
 }
