@@ -15,7 +15,7 @@ if sys.platform == "win32":
 
 from agents.registry.registration import register_agents
 from remove_emoji import remove_emoji
-from orchestrator import orchestrate
+from orchestrator_enhanced import orchestrate
 
 
 def chat_console():

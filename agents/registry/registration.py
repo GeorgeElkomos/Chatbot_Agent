@@ -1,12 +1,13 @@
 """
 File: agents/registry/registration.py (relative to Chatbot_Agent)
+
+✅ ENHANCED: SQLBuilder agent deprecated and removed from imports
 """
 
 from agents import (
     page_navigator_agent,
     NavigationResponse,
-    sql_builder_agent,
-    DatabaseResponse,
+    # sql_builder_agent, DatabaseResponse - DEPRECATED, moved to _deprecated/
     general_qa_agent,
     QAResponse,
     manager_agent,

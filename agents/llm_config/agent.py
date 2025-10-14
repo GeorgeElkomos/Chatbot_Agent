@@ -24,7 +24,7 @@ _base_llm = LLM(
 
 # _base_llm = LLM(
 #     name="BasicLLM",
-#     model="ollama/deepseek-r1:32b",  # Format: ollama/<model_name>
+#     model="ollama/gpt-oss:20b",  # Format: ollama/<model_name>
 #     base_url="http://localhost:11434",  # Ollama default port
 #     output_dir=OUTPUT_DIR,
 #     temperature=0.1,

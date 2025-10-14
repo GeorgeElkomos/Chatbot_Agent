@@ -8,9 +8,7 @@ from agents.sql_builder.utils.helpers import _load_project_database
 @tool
 def Update_query_project_database(query: str) -> str:
     """Append project-database info so agents can make better database decisions."""
-    query += "\n\nAll the information you need about the database of the project is this:\n"
-    query += _load_project_database()
-    return query
+    return _load_project_database()
 
 @tool
 def run_query(query: str) -> str:

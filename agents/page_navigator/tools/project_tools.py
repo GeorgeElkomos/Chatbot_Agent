@@ -1,14 +1,16 @@
 """
 File: agents/page_navigator/tools/project_tools.py (relative to Chatbot_Agent)
 """
-# Moved from tools/project_tools.py
-# Add any page_navigator agent-specific tool code here
-from crewai.tools import tool
-from agents.page_navigator.utils.helpers import _load_project_pages
+"""
+File: agents/page_navigator/tools/project_tools.py (relative to Chatbot_Agent)
 
-@tool
-def Update_query_project_pages(query: str) -> str:
-    """Append project-page info so agents can make better navigation decisions."""
-    query += "\n\nAll the information you need about the pages of the project is this:\n"
-    query += _load_project_pages()
-    return query
+✅ ENHANCED: Following analytics agent gold standard pattern
+No tools needed - page information is embedded directly in agent backstory for optimal performance.
+
+This file is kept for future tool additions if needed.
+Previous tool (get_project_pages) removed as it caused convergence issues via string concatenation.
+"""
+
+# Future tools can be added here if needed
+# from crewai.tools import tool
+

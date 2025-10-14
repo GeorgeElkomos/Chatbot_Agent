@@ -1,14 +1,11 @@
 {
-  "OrgChartAgent": {
-    "response": "As of December 31, 2025, Aanchal Mohamed Paniccia has three direct reports: Syed Mohammad Javed Belsare (Employee Number: 1121322), Jan Margaret Geddes Raut (Employee Number: 10454), and Hussein Al Hosani (Employee Number: 10204). These employees are spread across different departments, with Syed Mohammad Javed Belsare in the CEO Office, Jan Margaret Geddes Raut in Russia, and Hussein Al Hosani also in the CEO Office. This indicates a cross-departmental management structure under Aanchal Mohamed Paniccia.",
-    "HTML_TABLE_DATA": "<table border=\"1\">\n<tr>\n<th>Manager Person Number</th>\n<th>Manager Name</th>\n<th>Employee Person Number</th>\n<th>Employee Name</th>\n<th>Department</th>\n</tr>\n<tr>\n<td>10204</td>\n<td>Aanchal Mohamed Paniccia</td>\n<td>1121322</td>\n<td>Syed Mohammad Javed Belsare</td>\n<td>CEO Office</td>\n</tr>\n<tr>\n<td>10204</td>\n<td>Aanchal Mohamed Paniccia</td>\n<td>10454</td>\n<td>Jan Margaret Geddes Raut</td>\n<td>Russia</td>\n</tr>\n<tr>\n<td>10204</td>\n<td>Aanchal Mohamed Paniccia</td>\n<td>10204</td>\n<td>Hussein Al Hosani</td>\n<td>CEO Office</td>\n</tr>\n</table>",
-    "statistics": {
-      "total_employees": 3,
-      "unique_departments": 2,
-      "manager_span_of_control": 3
-    }
+  "AbsenceAnalyticsAgent": {
+    "User_Friendly_response": "The investigation into the 'Unspecified Plan (null)' revealed that the corresponding records actually have a NULL value for the absence_plan_name. There is one such record with a leave balance of 769.74 days. All employee-related fields (person_number, employee_name, job_name, department_name, accrual_period, grade_name and business_unit) are NULL, indicating a data entry or system integration issue where the absence plan was not correctly associated with an employee. This needs to be investigated to determine the correct employee and absence plan to associate with this balance.",
+    "HTML_TABLE_DATA": "<table border=\"1\"><tr><th>id</th><th>person_number</th><th>absence_plan_name</th><th>balance</th><th>accrual_period</th><th>job_name</th><th>grade_name</th><th>business_unit</th><th>employee_name</th><th>department_name</th></tr><tr><td>55083</td><td>null</td><td>null</td><td>769.74</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td><td>null</td></tr></table>",
+    "total_employees": null,
+    "total_balance_days": 769.74
   },
   "GeneralQAAgent": {
-    "response": "As of December 31, 2025, Aanchal Mohamed Paniccia has three direct reports: Syed Mohammad Javed Belsare (Employee Number: 1121322), Jan Margaret Geddes Raut (Employee Number: 10454), and Hussein Al Hosani (Employee Number: 10204). These employees are spread across different departments, with Syed Mohammad Javed Belsare in the CEO Office, Jan Margaret Geddes Raut in Russia, and Hussein Al Hosani also in the CEO Office. This indicates a cross-departmental management structure under Aanchal Mohamed Paniccia."
+    "response": "The investigation into the 'Unspecified Plan (null)' revealed a data issue. There's a record with a leave balance of 769.74 days where the absence plan name is actually NULL. More importantly, all employee-related information (employee ID, name, job, department, accrual period, grade, and business unit) is also missing (NULL). This indicates a problem with how the absence plan was recorded or integrated into the system. Specifically, the system doesn't know which employee this absence balance belongs to. Further investigation is needed to identify the correct employee and absence plan to associate with this balance."
   }
 }

@@ -1,0 +1,104 @@
+{
+  "total_tests": 16,
+  "passed": 0,
+  "failed": 16,
+  "convergence_issues": 0,
+  "details": [
+    {
+      "agent": "PageNavigator",
+      "query": "Navigate me to the dashboard",
+      "status": "FAILED - 'NoneType' object has no attribute 'get'",
+      "response": ""
+    },
+    {
+      "agent": "PageNavigator",
+      "query": "Show me all available pages",
+      "status": "FAILED - 'NoneType' object has no attribute 'get'",
+      "response": ""
+    },
+    {
+      "agent": "PageNavigator",
+      "query": "Take me to user management",
+      "status": "FAILED - 'NoneType' object has no attribute 'get'",
+      "response": ""
+    },
+    {
+      "agent": "PageNavigator",
+      "query": "I want to see pending approvals for FAR transfers",
+      "status": "FAILED - Unknown agent requested by Manager: DataRetriever. Available agents: []",
+      "response": ""
+    },
+    {
+      "agent": "FusionAnalytics",
+      "query": "Show me top 5 employees with most violations",
+      "status": "FAILED - Unknown agent requested by Manager: DataAnalyst. Available agents: []",
+      "response": ""
+    },
+    {
+      "agent": "FusionAnalytics",
+      "query": "What are the total expenses this month?",
+      "status": "FAILED - 'NoneType' object has no attribute 'get'",
+      "response": ""
+    },
+    {
+      "agent": "FusionAnalytics",
+      "query": "Show me all pending expenses",
+      "status": "FAILED - 'NoneType' object has no attribute 'get'",
+      "response": ""
+    },
+    {
+      "agent": "AbsenceAnalytics",
+      "query": "Show me employees with high leave balances",
+      "status": "FAILED - Unknown agent requested by Manager: DatabaseAgent. Available agents: []",
+      "response": ""
+    },
+    {
+      "agent": "AbsenceAnalytics",
+      "query": "What's the leave distribution by department?",
+      "status": "FAILED - Unknown agent requested by Manager: DataAnalyst. Available agents: []",
+      "response": ""
+    },
+    {
+      "agent": "AbsenceAnalytics",
+      "query": "Who has zero leave balance?",
+      "status": "FAILED - Unknown agent requested by Manager: DataAnalyst. Available agents: []",
+      "response": ""
+    },
+    {
+      "agent": "OrgChart",
+      "query": "Show me the organizational structure",
+      "status": "FAILED - 'NoneType' object has no attribute 'get'",
+      "response": ""
+    },
+    {
+      "agent": "OrgChart",
+      "query": "How many direct reports does the CEO have?",
+      "status": "FAILED - Unknown agent requested by Manager: OrgChartAgent. Available agents: []",
+      "response": ""
+    },
+    {
+      "agent": "OrgChart",
+      "query": "Show me all employees in Finance department",
+      "status": "FAILED - Unknown agent requested by Manager: EmployeeDataAgent. Available agents: []",
+      "response": ""
+    },
+    {
+      "agent": "FunctionCaller",
+      "query": "I want to create a new project",
+      "status": "FAILED - 'NoneType' object has no attribute 'get'",
+      "response": ""
+    },
+    {
+      "agent": "FunctionCaller",
+      "query": "Show me how to get dashboard stats",
+      "status": "FAILED - 'NoneType' object has no attribute 'get'",
+      "response": ""
+    },
+    {
+      "agent": "FunctionCaller",
+      "query": "What API is available for listing projects?",
+      "status": "FAILED - Unknown agent requested by Manager: APIExplorer. Available agents: []",
+      "response": ""
+    }
+  ]
+}
